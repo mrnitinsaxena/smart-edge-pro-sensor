@@ -22,6 +22,4 @@ esphome:
             const auto selected = id(ir_ac_brand).current_option();
             ${ "id(daikin_ac).set_internal(!(selected == \"Daikin\"));" if ir_daikin_ac is defined and ir_daikin_ac else "" }
             ${ "id(panasonic_ac).set_internal(!(selected == \"Panasonic\"));" if ir_panasonic_ac is defined and ir_panasonic_ac else "" }
-            ${ "id(panasonic_ac_fan_level).set_internal(!(selected == \"Panasonic\"));" if ir_panasonic_ac is defined and ir_panasonic_ac else "" }
-            ${ "id(panasonic_ac_swing_vertical).set_internal(!(selected == \"Panasonic\"));" if ir_panasonic_ac is defined and ir_panasonic_ac else "" }
-            ${ "id(panasonic_ac_swing_horizontal).set_internal(!(selected == \"Panasonic\"));" if ir_panasonic_ac is defined and ir_panasonic_ac else "" }
+            ${ "id(panasonic_ac_vane).set_internal(!(selected == \"Panasonic\"));" if ir_panasonic_ac is defined and ir_panasonic_ac else "" }

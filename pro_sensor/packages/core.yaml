@@ -51,7 +51,7 @@ substitutions:
   device_name: "pro-sensor"
   model: "Smart Edge Pro Sensor"
   hardware_version: "2025.08.19"
-  firmware_version: "2026.11.25.2"
+  firmware_version: "2026.11.25.3"
   project_id: "Resonate to Innovate.Smart Edge Pro Sensor"
   # Model - set by each model file in pro_sensor/; must match the radar (decides which update file the device follows):
   #   pro-sensor           no radar

@@ -60,7 +60,6 @@ pro_sensor/
 ├── pro-sensor*.yaml      # one file per model - the firmware the release workflow builds
 ├── hardware/             # pins per board revision (hw-2025.08.19.yaml)
 ├── packages/             # shared code: core.yaml, radar (UART) and IR remote packages
-├── components/panaac/    # Panasonic AC driver
 └── examples/             # all-options.example.yaml - every setting with its default
 static/                   # web installer page and logos
 .github/workflows/        # builds every model on each release
@@ -83,7 +82,7 @@ You can also start from scratch:
 
 ```yaml
 packages:
-  smart_edge: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/pro-sensor-sen0395.yaml@v2026.11.25.2
+  smart_edge: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/pro-sensor-sen0395.yaml@v2026.11.25.3
 
 wifi:
   ssid: !secret wifi_ssid

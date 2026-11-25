@@ -75,4 +75,4 @@ substitutions:
   # board_reserve_ma: "300"
 
 packages:
-  core: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/packages/core.yaml@v2026.11.25.2
+  core: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/packages/core.yaml@v2026.11.25.3

@@ -10,6 +10,8 @@ remote_receiver:
   id: ir_receiver
   tolerance: 55%
   idle: 9500us
+  rmt_symbols: 256              # room for a whole Panasonic A/C frame (220 symbols) from the remote
+  receive_symbols: 256
   pin:
     number: ${IR_RECEIVER_PIN}
     inverted: true
