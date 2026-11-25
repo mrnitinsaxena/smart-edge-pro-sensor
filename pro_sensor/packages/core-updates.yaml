@@ -21,7 +21,7 @@ update:
       - script.execute: update_notice
 
 script:
-  # New firmware on GitHub: slow yellow pulse on the on-board LED for 10 s.
+  # New firmware on GitHub: slow yellow pulse on the on-board LED for 20 s (about 5 blinks).
   # Silent, skipped during Do Not Disturb or an alert; repeats after each restart until updated.
   - id: update_notice
     mode: restart
@@ -46,7 +46,7 @@ script:
                 red: 1
                 green: 0.7
                 blue: 0
-            - delay: 10s
+            - delay: 20s
             - lambda: |-
                 auto *led = id(led_onboard);
                 if (!id(safety_alert).state && led->remote_values.is_on() && led->get_effect_name() == "info")

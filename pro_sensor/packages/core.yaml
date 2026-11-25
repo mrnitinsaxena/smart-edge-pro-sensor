@@ -5,7 +5,7 @@ substitutions:
 
   # ── Device & identity ──
   custom_device_name: ""        # hostname; empty = pro-sensor-xxxxxx (MAC suffix)
-  custom_friendly_name: ""      # name in Home Assistant; empty = "Pro Sensor"
+  custom_friendly_name: ""      # name in Home Assistant; empty = "Smart Edge Pro Sensor"
   custom_area: ""               # room suggested to HA on first add, e.g. "Guest Room"
 
   # ── Network & security ──
@@ -49,9 +49,9 @@ substitutions:
   company: "Resonate to Innovate"
   brand: "Smart Edge"
   device_name: "pro-sensor"
-  model: "Pro Sensor"
+  model: "Smart Edge Pro Sensor"
   hardware_version: "2025.08.19"
-  firmware_version: "2026.11.25"
+  firmware_version: "2026.11.25.1"
   project_id: "Resonate to Innovate.Smart Edge Pro Sensor"
   # Model - set by each model file in pro_sensor/; must match the radar (decides which update file the device follows):
   #   pro-sensor           no radar
