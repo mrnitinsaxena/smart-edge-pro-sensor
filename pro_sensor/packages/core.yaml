@@ -30,8 +30,7 @@ substitutions:
   # ── IR remotes (all built in; each user picks their brand in Home Assistant) ──
   ir_samsung_tv: true
   ir_sony_tv: true
-  ir_daikin_ac: true
-  ir_panasonic_ac: true
+  ir_ac: true                   # air conditioners: every remote model built into ESPHome
   ir_atomberg_fan: true
 
   # ── Alerts & alarm ──
@@ -51,7 +50,7 @@ substitutions:
   device_name: "pro-sensor"
   model: "Smart Edge Pro Sensor"
   hardware_version: "2025.08.19"
-  firmware_version: "2026.11.25.3"
+  firmware_version: "2026.11.25.4"
   project_id: "Resonate to Innovate.Smart Edge Pro Sensor"
   # Model - set by each model file in pro_sensor/; must match the radar (decides which update file the device follows):
   #   pro-sensor           no radar
@@ -114,10 +113,8 @@ substitutions:
     file: core-updates.yaml
   atomberg_fan_capabilities: !include
     file: ir-atomberg-fan.yaml
-  daikin_ac_capabilities: !include
-    file: ir-climate-daikin-cool.yaml
-  panasonic_ac_capabilities: !include
-    file: ir-climate-panasonic-rkr.yaml
+  ac_capabilities: !include
+    file: ir-climate-ac.yaml
   samsung_tv_capabilities: !include
     file: ir-samsung-tv.yaml
   sony_tv_capabilities: !include
@@ -151,7 +148,7 @@ substitutions:
 
 
 packages:
-  core_ir: ${ ir_capabilities if (ir_atomberg_fan is defined and ir_atomberg_fan) or (ir_daikin_ac is defined and ir_daikin_ac) or (ir_panasonic_ac is defined and ir_panasonic_ac) or (ir_samsung_tv is defined and ir_samsung_tv) or (ir_sony_tv is defined and ir_sony_tv) else {} }
+  core_ir: ${ ir_capabilities if (ir_atomberg_fan is defined and ir_atomberg_fan) or (ir_ac is defined and ir_ac) or (ir_samsung_tv is defined and ir_samsung_tv) or (ir_sony_tv is defined and ir_sony_tv) else {} }
   wifi_custom_capabilities: ${ wifi_custom_capabilities if wifi_ssid is defined and wifi_password is defined and wifi_ssid != "" and wifi_password != "" else {} }
   api_key_capabilities: ${ api_key_capabilities if api_key is defined and api_key != "" else {} }
   area_capabilities: ${ area_capabilities if custom_area is defined and custom_area != "" else {} }
@@ -160,12 +157,11 @@ packages:
   dashboard_import_capabilities: ${ dashboard_import_capabilities if dashboard_import_url is defined and dashboard_import_url != "" else {} }
   updates_capabilities: ${ updates_capabilities if update_manifest_url is defined and update_manifest_url != "" else {} }
   atomberg_fan_capabilities: ${ atomberg_fan_capabilities if ir_atomberg_fan is defined and ir_atomberg_fan else {} }
-  daikin_ac_capabilities: ${ daikin_ac_capabilities if ir_daikin_ac is defined and ir_daikin_ac else {} }
-  panasonic_ac_capabilities: ${ panasonic_ac_capabilities if ir_panasonic_ac is defined and ir_panasonic_ac else {} }
+  ac_capabilities: ${ ac_capabilities if ir_ac is defined and ir_ac else {} }
   samsung_tv_capabilities: ${ samsung_tv_capabilities if ir_samsung_tv is defined and ir_samsung_tv else {} }
   sony_tv_capabilities: ${ sony_tv_capabilities if ir_sony_tv is defined and ir_sony_tv else {} }
   ir_tv_select_capabilities: ${ ir_tv_select_capabilities if (ir_samsung_tv is defined and ir_samsung_tv) or (ir_sony_tv is defined and ir_sony_tv) else {} }
-  ir_ac_select_capabilities: ${ ir_ac_select_capabilities if (ir_daikin_ac is defined and ir_daikin_ac) or (ir_panasonic_ac is defined and ir_panasonic_ac) else {} }
+  ir_ac_select_capabilities: ${ ir_ac_select_capabilities if (ir_ac is defined and ir_ac) else {} }
   ir_fan_select_capabilities: ${ ir_fan_select_capabilities if ir_atomberg_fan is defined and ir_atomberg_fan else {} }
   ld2412_capabilities: ${ ld2412_capabilities if radar1_ld2412 is defined and radar1_ld2412 else {} }
   ld2450_capabilities: ${ ld2450_capabilities if radar1_ld2450 is defined and radar1_ld2450 else {} }

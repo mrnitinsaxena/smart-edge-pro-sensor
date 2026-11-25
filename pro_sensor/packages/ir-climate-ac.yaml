@@ -1,0 +1,417 @@
+# Air conditioners - every IR platform built into ESPHome, one entry per remote model.
+# Generated list: the user picks one under Configuration > AC remote in Home Assistant,
+# and only that one is shown (see core-ir-ac-select.yaml). Units that support it learn
+# from the original remote through the IR receiver, so Home Assistant stays in sync.
+climate:
+  - platform: airton            # Airton
+    name: Airton AC
+    id: ac_airton
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: ballu            # Ballu
+    name: Ballu AC
+    id: ac_ballu
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: coolix            # Coolix
+    name: Coolix AC
+    id: ac_coolix
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: daikin            # Daikin
+    name: Daikin AC
+    id: ac_daikin
+    supports_heat: false
+    supports_cool: true
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: daikin_arc            # Daikin ARC
+    name: Daikin ARC AC
+    id: ac_daikin_arc
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: daikin_brc            # Daikin BRC
+    name: Daikin BRC AC
+    id: ac_daikin_brc
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: delonghi            # Delonghi
+    name: Delonghi AC
+    id: ac_delonghi
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: emmeti            # Emmeti
+    name: Emmeti AC
+    id: ac_emmeti
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: fujitsu_general            # Fujitsu General / O General
+    name: Fujitsu General AC
+    id: ac_fujitsu_general
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: gree            # Gree Generic
+    name: Gree Generic AC
+    id: ac_gree_generic
+    model: generic
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: gree            # Gree YAA
+    name: Gree YAA AC
+    id: ac_gree_yaa
+    model: yaa
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: gree            # Gree YAC
+    name: Gree YAC AC
+    id: ac_gree_yac
+    model: yac
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: gree            # Gree YAC1FB9
+    name: Gree YAC1FB9 AC
+    id: ac_gree_yac1fb9
+    model: yac1fb9
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: gree            # Gree YAG
+    name: Gree YAG AC
+    id: ac_gree_yag
+    model: yag
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: gree            # Gree YAN
+    name: Gree YAN AC
+    id: ac_gree_yan
+    model: yan
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: gree            # Gree YAW1F
+    name: Gree YAW1F AC
+    id: ac_gree_yaw1f
+    model: yaw1f
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: gree            # Gree YB1FA
+    name: Gree YB1FA AC
+    id: ac_gree_yb1fa
+    model: yb1fa
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: gree            # Gree YX1FF
+    name: Gree YX1FF AC
+    id: ac_gree_yx1ff
+    model: yx1ff
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: haier_tundra            # Haier Tundra
+    name: Haier Tundra AC
+    id: ac_haier_tundra
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: hitachi_ac344            # Hitachi AC344
+    name: Hitachi AC344 AC
+    id: ac_hitachi_ac344
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: hitachi_ac424            # Hitachi AC424
+    name: Hitachi AC424 AC
+    id: ac_hitachi_ac424
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: climate_ir_lg            # LG
+    name: LG AC
+    id: ac_lg
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: midea_ir            # Midea
+    name: Midea AC
+    id: ac_midea
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: mistral_ir            # Mistral
+    name: Mistral AC
+    id: ac_mistral
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: mitsubishi            # Mitsubishi
+    name: Mitsubishi AC
+    id: ac_mitsubishi
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: noblex            # Noblex
+    name: Noblex AC
+    id: ac_noblex
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: panasonic_ir            # Panasonic CKP
+    name: Panasonic CKP AC
+    id: ac_panasonic_ckp
+    model: CKP
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: panasonic_ir            # Panasonic DKE
+    name: Panasonic DKE AC
+    id: ac_panasonic_dke
+    model: DKE
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: panasonic_ir            # Panasonic JKE
+    name: Panasonic JKE AC
+    id: ac_panasonic_jke
+    model: JKE
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: panasonic_ir            # Panasonic LKE
+    name: Panasonic LKE AC
+    id: ac_panasonic_lke
+    model: LKE
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: panasonic_ir            # Panasonic NKE
+    name: Panasonic NKE AC
+    id: ac_panasonic_nke
+    model: NKE
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: panasonic_ir            # Panasonic PKE
+    name: Panasonic PKE AC
+    id: ac_panasonic_pke
+    model: PKE
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: panasonic_ir            # Panasonic RKR
+    name: Panasonic RKR AC
+    id: ac_panasonic_rkr
+    model: RKR
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: pd_pioneer_ir            # Pioneer (Parker Davis)
+    name: Pioneer AC
+    id: ac_pioneer
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: remko_ar715            # Remko / Trotec
+    name: Remko AC
+    id: ac_remko
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: samsung            # Samsung
+    name: Samsung AC
+    id: ac_samsung
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: siemens_ira211            # Siemens IRA211
+    name: Siemens IRA211 AC
+    id: ac_siemens_ira211
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: tcl112            # TCL / Electrolux
+    name: TCL AC
+    id: ac_tcl
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: toshiba            # Toshiba Generic
+    name: Toshiba Generic AC
+    id: ac_toshiba_generic
+    model: GENERIC
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: toshiba            # Toshiba RAC-PT1411HWRU-C
+    name: Toshiba RAC-PT1411HWRU-C AC
+    id: ac_toshiba_rac_pt1411hwru_c
+    model: RAC-PT1411HWRU-C
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: toshiba            # Toshiba RAC-PT1411HWRU-F
+    name: Toshiba RAC-PT1411HWRU-F AC
+    id: ac_toshiba_rac_pt1411hwru_f
+    model: RAC-PT1411HWRU-F
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: toshiba            # Toshiba RAS-25J2KVSG-ND
+    name: Toshiba RAS-25J2KVSG-ND AC
+    id: ac_toshiba_ras_25j2kvsg_nd
+    model: RAS-25J2KVSG-ND
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: toshiba            # Toshiba RAS-2819T
+    name: Toshiba RAS-2819T AC
+    id: ac_toshiba_ras_2819t
+    model: RAS-2819T
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: toshiba            # Toshiba RAS-B10N3KV2
+    name: Toshiba RAS-B10N3KV2 AC
+    id: ac_toshiba_ras_b10n3kv2
+    model: RAS-B10N3KV2
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: toshiba            # Toshiba Seiya
+    name: Toshiba Seiya AC
+    id: ac_toshiba_seiya
+    model: SEIYA
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: whirlpool            # Whirlpool DG11J1-3A
+    name: Whirlpool DG11J1-3A AC
+    id: ac_whirlpool_dg11j1_3a
+    model: DG11J1-3A
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: whirlpool            # Whirlpool DG11J1-91
+    name: Whirlpool DG11J1-91 AC
+    id: ac_whirlpool_dg11j1_91
+    model: DG11J1-91
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: whynter            # Whynter
+    name: Whynter AC
+    id: ac_whynter
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: yashima            # Yashima
+    name: Yashima AC
+    id: ac_yashima
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+  - platform: zhlt01            # ZH/LT-01
+    name: ZH-LT-01 AC
+    id: ac_zhlt01
+    receiver_id: ir_receiver
+    transmitter_id: ir_transmitter
+    sensor: sensor_temperature
+    icon: mdi:air-conditioner
+
+select:
+  - platform: panasonic_ir
+    panasonic_ir_id: ac_panasonic_ckp
+    vane_position:
+      name: Panasonic CKP AC vane position
+      id: ac_panasonic_ckp_vane
+  - platform: panasonic_ir
+    panasonic_ir_id: ac_panasonic_dke
+    vane_position:
+      name: Panasonic DKE AC vane position
+      id: ac_panasonic_dke_vane
+  - platform: panasonic_ir
+    panasonic_ir_id: ac_panasonic_jke
+    vane_position:
+      name: Panasonic JKE AC vane position
+      id: ac_panasonic_jke_vane
+  - platform: panasonic_ir
+    panasonic_ir_id: ac_panasonic_lke
+    vane_position:
+      name: Panasonic LKE AC vane position
+      id: ac_panasonic_lke_vane
+  - platform: panasonic_ir
+    panasonic_ir_id: ac_panasonic_nke
+    vane_position:
+      name: Panasonic NKE AC vane position
+      id: ac_panasonic_nke_vane
+  - platform: panasonic_ir
+    panasonic_ir_id: ac_panasonic_pke
+    vane_position:
+      name: Panasonic PKE AC vane position
+      id: ac_panasonic_pke_vane
+  - platform: panasonic_ir
+    panasonic_ir_id: ac_panasonic_rkr
+    vane_position:
+      name: Panasonic RKR AC vane position
+      id: ac_panasonic_rkr_vane
