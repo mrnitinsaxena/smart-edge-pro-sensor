@@ -38,7 +38,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install ESPHome (same version as releases)
-        run: pip install esphome==2026.11.0
+        run: pip install esphome==2026.11.1
 
       - name: Validate configuration
         run: esphome config pro_sensor/${{ matrix.model }}.yaml > /dev/null
