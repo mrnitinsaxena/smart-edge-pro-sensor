@@ -6,9 +6,6 @@
 
 <h1 align="center">Pro Sensor</h1>
 
-> [!IMPORTANT]
-> **This repository has moved to [github.com/mrnitinsaxena/smart-edge-pro-sensor](https://github.com/mrnitinsaxena/smart-edge-pro-sensor).** Sensors update to the new location automatically with v2026.11.25. New releases are published only there.
-
 <p align="center">
   <a href="https://mrnitinsaxena.github.io/smart-edge-pro-sensor/"><b>Install firmware</b></a> ·
   <a href="https://github.com/mrnitinsaxena/smart-edge-pro-sensor/releases">Releases</a>
@@ -86,7 +83,7 @@ You can also start from scratch:
 
 ```yaml
 packages:
-  smart_edge: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/pro-sensor-sen0395.yaml@v2026.11.25
+  smart_edge: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/pro-sensor-sen0395.yaml@v2026.11.25.1
 
 wifi:
   ssid: !secret wifi_ssid
@@ -125,7 +122,7 @@ Set any of these under `substitutions:` in your device config.
 | Option | Default | Description |
 |---|---|---|
 | `custom_device_name` | `pro-sensor-xxxxxx` | Hostname |
-| `custom_friendly_name` | `Pro Sensor` | Name shown in Home Assistant |
+| `custom_friendly_name` | `Smart Edge Pro Sensor` | Name shown in Home Assistant |
 | `custom_area` | — | Room suggested to Home Assistant when the device is first added (e.g. `Guest Room`). Keep the room out of the name to avoid IDs like `guest_room_guest_room_sensor_…` |
 | `wifi_ssid` / `wifi_password` | — | Hard-code Wi-Fi instead of using onboarding |
 | `api_key` | provisioned by HA | Fix the API encryption key (also encrypts OTA) |
@@ -161,7 +158,7 @@ Strips longer than a few LEDs need their own 5 V supply; connect its ground to t
 | Home Assistant connected | Off | 3 beeps |
 | Wi-Fi / HA lost | Fast pulse | Long tone |
 | Alert | Red/blue flashing | Siren |
-| Firmware update available | Slow yellow pulse, 10 s | – |
+| Firmware update available | Slow yellow pulse, 20 s (about 5 blinks) | – |
 | Updating / done / failed | Purple / green / red | – |
 
 **Do Not Disturb** (off by default) silences the connection sounds and LEDs, and the update-available pulse. Alerts always sound.
