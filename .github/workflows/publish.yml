@@ -1,0 +1,139 @@
+name: Publish firmware
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write   # attach binaries to the release
+  pages: write      # deploy to GitHub Pages
+  id-token: write
+  actions: read     # deploy-pages reads the uploaded Pages artifact
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build ${{ matrix.model }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        model:
+          - pro-sensor            # no radar
+          - pro-sensor-sen0395    # DFRobot SEN0395
+          - pro-sensor-sen0609    # DFRobot SEN0609
+          - pro-sensor-mr24hpc1   # Seeed MR24HPC1
+          - pro-sensor-ld2410     # HLK-LD2410
+          - pro-sensor-ld2412     # HLK-LD2412
+          - pro-sensor-ld2420     # HLK-LD2420
+          - pro-sensor-ld2450     # HLK-LD2450
+          # dual radar: radar 1 (not LD2450) + HLK-LD2450 as radar 2
+          - pro-sensor-sen0395-ld2450
+          - pro-sensor-sen0609-ld2450
+          - pro-sensor-mr24hpc1-ld2450
+          - pro-sensor-ld2410-ld2450
+          - pro-sensor-ld2412-ld2450
+          - pro-sensor-ld2420-ld2450
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Version from tag
+        id: ver
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          case "$TAG" in v*) ;; *) echo "::error::Release tag must start with v (e.g. v2026.11.24.2)"; exit 1;; esac
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build firmware
+        id: esphome
+        uses: esphome/build-action@v8.0.0
+        with:
+          yaml-file: pro_sensor/${{ matrix.model }}.yaml
+          version: 2026.11.0          # pinned ESPHome version - upgrade on purpose
+          complete-manifest: true
+          release-summary: ${{ github.event.release.body }}
+          release-url: ${{ github.event.release.html_url }}
+          substitutions: |
+            firmware_version=${{ steps.ver.outputs.version }}
+
+      - name: Collect output
+        run: |
+          mkdir -p out/${{ matrix.model }}
+          cp -r "${{ steps.esphome.outputs.name }}"/* out/${{ matrix.model }}/
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: fw-${{ matrix.model }}
+          path: out
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: fw-*
+          merge-multiple: true
+          path: site
+
+      - name: Set product names (Home Assistant) and offer "Erase device" in the installer
+        run: |
+          for dir in site/*/; do
+            model=$(basename "$dir")
+            case "$model" in
+              pro-sensor)          label="" ;;
+              pro-sensor-sen0395)  label=" (SEN0395)" ;;
+              pro-sensor-sen0609)  label=" (SEN0609)" ;;
+              pro-sensor-mr24hpc1) label=" (MR24HPC1)" ;;
+              pro-sensor-ld2410)   label=" (LD2410)" ;;
+              pro-sensor-ld2412)   label=" (LD2412)" ;;
+              pro-sensor-ld2420)   label=" (LD2420)" ;;
+              pro-sensor-ld2450)   label=" (LD2450)" ;;
+              pro-sensor-sen0395-ld2450)  label=" (SEN0395 + LD2450)" ;;
+              pro-sensor-sen0609-ld2450)  label=" (SEN0609 + LD2450)" ;;
+              pro-sensor-mr24hpc1-ld2450) label=" (MR24HPC1 + LD2450)" ;;
+              pro-sensor-ld2410-ld2450)   label=" (LD2410 + LD2450)" ;;
+              pro-sensor-ld2412-ld2450)   label=" (LD2412 + LD2450)" ;;
+              pro-sensor-ld2420-ld2450)   label=" (LD2420 + LD2450)" ;;
+              *)                   label=" ($model)" ;;
+            esac
+            jq --arg n "Resonate to Innovate: Smart Edge Pro Sensor$label" \
+               '.name = $n | .new_install_prompt_erase = true' "$dir/manifest.json" > manifest.tmp
+            mv manifest.tmp "$dir/manifest.json"
+          done
+          cp static/index.html site/
+          ls -R site
+
+      - name: Attach binaries to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p assets
+          for dir in site/*/; do
+            model=$(basename "$dir")
+            for f in "$dir"*.bin; do
+              case "$f" in
+                *.factory.bin) cp "$f" "assets/$model.factory.bin" ;;
+                *.ota.bin)     cp "$f" "assets/$model.ota.bin" ;;
+              esac
+            done
+          done
+          gh release upload "${{ github.event.release.tag_name }}" assets/*.bin --clobber
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
