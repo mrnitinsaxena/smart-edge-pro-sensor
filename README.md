@@ -83,7 +83,7 @@ You can also start from scratch:
 
 ```yaml
 packages:
-  smart_edge: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/pro-sensor-sen0395.yaml@v2026.11.25.1
+  smart_edge: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/pro-sensor-sen0395.yaml@v2026.11.25.2
 
 wifi:
   ssid: !secret wifi_ssid
