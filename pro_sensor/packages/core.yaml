@@ -51,7 +51,7 @@ substitutions:
   device_name: "pro-sensor"
   model: "Smart Edge Pro Sensor"
   hardware_version: "2025.08.19"
-  firmware_version: "2026.11.25.1"
+  firmware_version: "2026.11.25.2"
   project_id: "Resonate to Innovate.Smart Edge Pro Sensor"
   # Model - set by each model file in pro_sensor/; must match the radar (decides which update file the device follows):
   #   pro-sensor           no radar
@@ -750,6 +750,14 @@ script:
           else if (stage == 1) call.set_rgb(0.0f, 1.0f, 0.0f);   // green: done, restarting
           else                 call.set_rgb(1.0f, 0.0f, 0.0f);   // red: failed
           call.perform();
+
+          // The update blocks the main loop (and restarts right after it finishes), so the light
+          // would never get a chance to refresh: write the colour to the LED immediately.
+          auto *out = static_cast<light::AddressableLight *>(id(led_onboard)->get_output());
+          Color c = stage == 0 ? Color(92, 0, 153) : (stage == 1 ? Color(0, 153, 0) : Color(153, 0, 0));
+          (*out)[0] = c;
+          out->write_state(id(led_onboard));
+          if (stage == 1) delay(1500);                              // keep green visible before the restart
 
   # During an alert the external strip (if enabled) runs the same emergency effect
   - id: strip_alert_start
