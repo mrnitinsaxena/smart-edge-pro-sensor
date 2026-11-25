@@ -1,0 +1,44 @@
+name: Check configuration
+
+# Validates every model on each push, so mistakes show up in a minute -
+# long before a release.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Check ${{ matrix.model }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        model:
+          - pro-sensor
+          - pro-sensor-sen0395
+          - pro-sensor-sen0609
+          - pro-sensor-mr24hpc1
+          - pro-sensor-ld2410
+          - pro-sensor-ld2412
+          - pro-sensor-ld2420
+          - pro-sensor-ld2450
+          - pro-sensor-sen0395-ld2450
+          - pro-sensor-sen0609-ld2450
+          - pro-sensor-mr24hpc1-ld2450
+          - pro-sensor-ld2410-ld2450
+          - pro-sensor-ld2412-ld2450
+          - pro-sensor-ld2420-ld2450
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install ESPHome (same version as releases)
+        run: pip install esphome==2026.11.0
+
+      - name: Validate configuration
+        run: esphome config pro_sensor/${{ matrix.model }}.yaml > /dev/null
