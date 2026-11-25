@@ -19,7 +19,7 @@ substitutions:
 
   # ── Device & identity ──
   custom_device_name: ""        # hostname; empty = pro-sensor-xxxxxx (MAC suffix)
-  custom_friendly_name: ""      # name in Home Assistant; empty = "Pro Sensor"
+  custom_friendly_name: ""      # name in Home Assistant; empty = "Smart Edge Pro Sensor"
   custom_area: ""               # room suggested to HA on first add, e.g. "Guest Room"
 
   # ── Network & security ──
@@ -75,4 +75,4 @@ substitutions:
   # board_reserve_ma: "300"
 
 packages:
-  core: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/packages/core.yaml@v2026.11.25
+  core: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/packages/core.yaml@v2026.11.25.1
