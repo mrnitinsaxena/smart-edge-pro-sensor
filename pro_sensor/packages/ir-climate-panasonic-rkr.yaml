@@ -1,0 +1,26 @@
+#https://github.com/hoangminh1109/PanaAC_ESPHome
+
+external_components:
+  - source: components
+    components: [panaac]
+
+climate:
+  - platform: panaac
+    name: Panasonic AC
+    id: panasonic_ac
+    fanlevel_id: panasonic_ac_fan_level
+    swingv_id: panasonic_ac_swing_vertical
+    swingh_id: panasonic_ac_swing_horizontal
+    receiver_id: ir_receiver
+    supports_heat: true
+    supports_quiet: true
+    fan_5level: false
+    swing_horizontal: true
+    temp_step: 1
+    ir_control: true
+    supports_fan_only: true
+    sensor: sensor_temperature
+    visual:
+      min_temperature: 18 °C
+      max_temperature: 30 °C
+      temperature_step: 1.0 °C

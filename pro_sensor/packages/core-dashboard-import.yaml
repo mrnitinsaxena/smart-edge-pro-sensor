@@ -1,0 +1,5 @@
+# Included when `dashboard_import_url` is set, e.g.
+# github://<user>/smart-edge-pro-sensor/pro_sensor/pro-sensor.yaml@main
+dashboard_import:
+  package_import_url: ${ dashboard_import_url if dashboard_import_url is defined else "" }
+  import_full_config: false

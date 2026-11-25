@@ -1,0 +1,129 @@
+# Default values; override per include with `vars:` if needed.
+defaults:
+  uart_id: "uart_bus_hlk_ld2410"
+  ld2410_id: "hlk_ld2410"
+  ld2410_prefix: "HLK-LD2410 "
+
+uart:
+  - id: ${uart_id}
+    rx_pin: ${RADAR1_RX1_PIN}
+    tx_pin: ${RADAR1_TX1_PIN}
+    baud_rate: 256000
+    parity: NONE
+    stop_bits: 1
+
+ld2410:
+  - id: ${ld2410_id}
+    uart_id: ${uart_id}
+
+binary_sensor:
+  - platform: ld2410
+    ld2410_id: ${ld2410_id}
+    has_target:
+      name: Presence
+      id: ${ld2410_id}_presence
+      device_class: occupancy
+      icon: mdi:home-outline
+    has_moving_target:
+      name: Motion
+      id: ${ld2410_id}_motion
+      device_class: motion
+    has_still_target:
+      name: Still
+      id: ${ld2410_id}_still
+      device_class: occupancy
+
+number:
+  - platform: ld2410
+    ld2410_id: ${ld2410_id}
+    timeout:
+      id: ${ld2410_id}_timeout
+      name: ${ld2410_prefix}Presence delay
+    max_move_distance_gate:
+      name: ${ld2410_prefix}Max move distance gate
+    max_still_distance_gate:
+      name: ${ld2410_prefix}Max still distance gate
+
+switch:
+  - platform: ld2410
+    ld2410_id: ${ld2410_id}
+    bluetooth:
+      id: ${ld2410_id}_bluetooth
+      name: ${ld2410_prefix}Bluetooth
+    engineering_mode:
+      name: ${ld2410_prefix}Engineering mode
+
+select:
+  - platform: ld2410
+    ld2410_id: ${ld2410_id}
+    distance_resolution:
+      name: ${ld2410_prefix}Distance resolution
+    baud_rate:
+      name: ${ld2410_prefix}Baud rate
+
+button:
+  - platform: ld2410
+    ld2410_id: ${ld2410_id}
+    factory_reset:
+      name: ${ld2410_prefix}Factory reset
+    restart:
+      name: ${ld2410_prefix}Restart
+    query_params:
+      name: ${ld2410_prefix}Query params
+
+text_sensor:
+  - platform: ld2410
+    ld2410_id: ${ld2410_id}
+    version:
+      name: ${ld2410_prefix}Firmware version
+    mac_address:
+      name: ${ld2410_prefix}MAC address
+
+sensor:
+  - platform: ld2410
+    ld2410_id: ${ld2410_id}
+    moving_distance:
+      name: ${ld2410_prefix}Moving Distance
+      entity_category: diagnostic
+    still_distance:
+      name: ${ld2410_prefix}Still Distance
+      entity_category: diagnostic
+    moving_energy:
+      name: ${ld2410_prefix}Move Energy
+      entity_category: diagnostic
+    still_energy:
+      name: ${ld2410_prefix}Still Energy
+      entity_category: diagnostic
+    detection_distance:
+      name: ${ld2410_prefix}Detection Distance
+      entity_category: diagnostic
+
+# First start with this radar: switch off its Bluetooth (anyone nearby could change
+# settings with the HLKRadarTool app) and replace a presence delay of 0 with 30 s.
+# Runs once; anything you change afterwards is never touched again.
+globals:
+  - id: radar_first_setup_done
+    type: bool
+    restore_value: true
+    initial_value: "false"
+
+esphome:
+  on_boot:
+    - priority: -200
+      then:
+        - delay: 20s
+        - if:
+            condition:
+              lambda: 'return !id(radar_first_setup_done) && id(${ld2410_id}_timeout).has_state();'
+            then:
+              - lambda: |-
+                  if (id(${ld2410_id}_timeout).state < 1) {
+                    ESP_LOGW("radar", "Presence delay was 0 - setting 30 s");
+                    id(${ld2410_id}_timeout).make_call().set_value(30).perform();
+                  }
+              - delay: 2s
+              - lambda: |-
+                  // Switch off even if the radar has not reported its Bluetooth state yet (runs once)
+                  ESP_LOGW("radar", "Switching off radar Bluetooth");
+                  id(${ld2410_id}_bluetooth).turn_off();
+                  id(radar_first_setup_done) = true;

@@ -1,0 +1,16 @@
+remote_transmitter:
+  id: ir_transmitter
+  carrier_duty_percent: 50%
+  non_blocking: false
+  pin:
+    number: ${IR_TRANSMITTER_PIN}
+    mode: OUTPUT
+
+remote_receiver:
+  id: ir_receiver
+  tolerance: 55%
+  idle: 9500us
+  pin:
+    number: ${IR_RECEIVER_PIN}
+    inverted: true
+    mode: INPUT

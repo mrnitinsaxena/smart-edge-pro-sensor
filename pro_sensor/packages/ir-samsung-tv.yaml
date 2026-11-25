@@ -1,0 +1,282 @@
+# Default values; override per include with `vars:` if needed.
+defaults:
+  SAMSUNG_TV_POWER_TOGGLE: "0xE0E06798"
+  SAMSUNG_TV_POWER_ON: "0xE0E09966"
+  SAMSUNG_TV_POWER_OFF: "0xE0E019E6"
+  SAMSUNG_TV_MUTE: "0xE0E0F00F"
+  SAMSUNG_TV_VOLUME_UP: "0xE0E0E01F"
+  SAMSUNG_TV_VOLUME_DOWN: "0xE0E0D02F"
+  SAMSUNG_TV_PLAY_PAUSE: "0xE0E09D62"
+  SAMSUNG_TV_CHANNEL_UP: "0xE0E048B7"
+  SAMSUNG_TV_CHANNEL_DOWN: "0xE0E008F7"
+  SAMSUNG_TV_HOME: "0xE0E09E61"
+  SAMSUNG_TV_BACK: "0xE0E01AE5"
+  SAMSUNG_TV_SELECT: "0xE0E016E9"
+  SAMSUNG_TV_TOP: "0xE0E006F9"
+  SAMSUNG_TV_DOWN: "0xE0E08679"
+  SAMSUNG_TV_LEFT: "0xE0E0A659"
+  SAMSUNG_TV_RIGHT: "0xE0E046B9"
+
+api:
+  services:
+    - service: send_samsung_tv_ir_code
+      variables:
+        data: string
+        nbits: int
+      then:
+        - remote_transmitter.transmit_samsung:
+            data: !lambda 'return strtoul(data.c_str(), nullptr, 16);'
+            nbits: !lambda 'return nbits;'
+            repeat:
+              times: 3
+              wait_time: 40ms
+
+button:
+  - platform: template
+    name: Samsung TV Power On
+    id: samsung_tv_power_on_button
+    icon: mdi:power
+    on_press:
+      - remote_transmitter.transmit_samsung:
+          data: ${SAMSUNG_TV_POWER_ON}
+          nbits: 32
+          repeat:
+            times: 3
+            wait_time: 40ms
+
+  - platform: template
+    name: Samsung TV Power Off
+    id: samsung_tv_power_off_button
+    icon: mdi:power
+    on_press:
+      - remote_transmitter.transmit_samsung:
+          data: ${SAMSUNG_TV_POWER_OFF}
+          nbits: 32
+          repeat:
+            times: 3
+            wait_time: 40ms
+
+binary_sensor:
+  - platform: remote_receiver
+    id: samsung_tv_power_toggle_pronto
+    internal: true
+    filters:
+      - delayed_off: 300ms
+    pronto:
+      data: "0000 006D 000D 0000 002F 002D 0010 0017 000F 0022 0010 005C 0010 0022 0010 0017 000F 0039 0010 0045 0010 005C 0010 0017 000F 005C 0010 002D 0010 016E"
+      delta: 60
+
+  - platform: remote_receiver
+    id: samsung_tv_power_toggle_samsung
+    internal: true
+    filters:
+      - delayed_off: 300ms
+    samsung:
+      data: ${SAMSUNG_TV_POWER_TOGGLE}
+      nbits: 32
+
+  - platform: template
+    id: samsung_tv_toggle
+    name: "Samsung TV Power Toggle"
+    icon: mdi:power
+    lambda: |-
+      return id(samsung_tv_power_toggle_pronto).state || id(samsung_tv_power_toggle_samsung).state;
+    filters:
+      - delayed_off: 300ms
+
+  - platform: remote_receiver
+    id: samsung_tv_on
+    name: "Samsung TV Power On"
+    icon: mdi:power
+    filters:
+      - delayed_off: 300ms
+    samsung:
+      data: ${SAMSUNG_TV_POWER_ON}
+      nbits: 32
+
+  - platform: remote_receiver
+    id: samsung_tv_off
+    name: "Samsung TV Power Off"
+    icon: mdi:power
+    filters:
+      - delayed_off: 300ms
+    samsung:
+      data: ${SAMSUNG_TV_POWER_OFF}
+      nbits: 32
+
+
+# globals:
+#   - id: last_samsung_ir_time
+#     type: time_t
+#     initial_value: "0"
+
+#   - id: now_samsung_ir_time
+#     type: time_t
+#     initial_value: "0"
+
+# remote_receiver:
+#   on_samsung:
+#     then:
+#       - if:
+#           condition:
+#             and:
+#               - lambda: |-
+#                   if (id(now_samsung_ir_time) - id(last_samsung_ir_time) > 2) {
+#                     id(last_samsung_ir_time) = id(now_samsung_ir_time);
+#                     return true;
+#                   }
+#                   return false;
+#           then:
+#             - homeassistant.event:
+#                 event: esphome.ir_receiver_samsung
+#                 data_template:
+#                   device: ${device_internal_name}
+#                   data: '{{ data }}'
+#                   nbits: '{{ nbits }}'
+#                 variables:
+#                   data: !lambda 'return x.data;'
+#                   nbits: !lambda 'return x.nbits;'
+
+
+#   - platform: template
+#     name: TV Volume Up
+#     icon: mdi:volume-plus
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_VOLUME_UP}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Volume Down
+#     icon: mdi:volume-minus
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_VOLUME_DOWN}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Mute
+#     icon: mdi:volume-mute
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_MUTE}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Play/Pause
+#     icon: mdi:play-pause
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_PLAY_PAUSE}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Channel Up
+#     icon: mdi:chevron-up
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_CHANNEL_UP}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Channel Down
+#     icon: mdi:chevron-down
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_CHANNEL_DOWN}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Home
+#     icon: mdi:home-circle-outline
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_HOME}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Back
+#     icon: mdi:keyboard-backspace
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_BACK}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Select
+#     icon: mdi:crosshairs-gps
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_SELECT}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Top
+#     icon: mdi:arrow-up-bold-circle-outline
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_TOP}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Bottom
+#     icon: mdi:arrow-down-bold-circle-outline
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_DOWN}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Left
+#     icon: mdi:arrow-left-bold-circle-outline
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_LEFT}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms
+
+#   - platform: template
+#     name: TV Right
+#     icon: mdi:arrow-right-bold-circle-outline
+#     on_press:
+#       - remote_transmitter.transmit_samsung:
+#           data: ${SAMSUNG_TV_RIGHT}
+#           nbits: 32
+#           repeat:
+#             times: 3
+#             wait_time: 40ms

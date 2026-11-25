@@ -1,0 +1,565 @@
+# Default values; override per include with `vars:` if needed.
+defaults:
+  uart_id: "uart_bus_sen0609"
+  sen0609_id: "sen0609"
+  sen0609_prefix: "SEN0609 "
+
+# ========================
+uart:
+  - id: ${uart_id}
+    baud_rate:  9600
+    data_bits: 8
+    stop_bits: 1
+    rx_pin: ${RADAR1_TX1_PIN}   # SEN0609 connector: radar TX goes to GPIO 17 on board 2025.08.19 (confirmed)
+    tx_pin: ${RADAR1_RX1_PIN}
+    debug:
+      direction: BOTH
+      dummy_receiver: true
+      after:
+        delimiter: "\n"
+      sequence:
+        - lambda: |-
+            //UARTDebug::log_string(direction, bytes);
+          
+            // Only process incoming data
+            if (direction == UART_DIRECTION_RX) {
+              std::string data = "";
+              for (int i = 0; i < bytes.size(); i++) {
+                data += char(bytes[i]);
+              }
+
+              // Trim CR/LF
+              while (!data.empty() && (data.back() == '\r' || data.back() == '\n')) {
+                data.pop_back();
+              }
+
+              // IGNORE EMPTY LINES
+              if (data.empty()) {
+                return;
+              }
+
+              //ESP_LOGI("sen0609", "RX: %s", data.c_str());
+            
+              // Parse presence detection data: DFHPD,1,,,*
+              if (data.rfind("$" "DFHPD", 0) == 0) {
+                size_t comma1 = data.find(',', 6);
+                if (comma1 != std::string::npos) {
+                  std::string presence_str = data.substr(comma1 + 1, 1);
+                  if (presence_str == "1") {
+                    id(${sen0609_id}_raw_presence).publish_state(true);
+                  } else if (presence_str == "0") {
+                    id(${sen0609_id}_raw_presence).publish_state(false);
+                  }
+                }
+              }
+            
+              // This section is used for factory reset to sync the UI
+              static std::string last_query_command = "";
+            
+              if (data.find("getRange") == 0) {
+                last_query_command = "getRange";
+              } else if (data.find("getSensitivity") == 0) {
+                last_query_command = "getSensitivity";
+              } else if (data.find("getLatency") == 0) {
+                last_query_command = "getLatency";
+              } else if (data.find("getTrigRange") == 0) {
+                last_query_command = "getTrigRange";
+              }
+
+              if (data.find("Response ") == 0) {
+                std::string response_data = data.substr(9);
+              
+                if (last_query_command == "getRange") {
+                  size_t space_pos = response_data.find(' ');
+                  if (space_pos != std::string::npos) {
+                    float min_range = atof(response_data.substr(0, space_pos).c_str());
+                    float max_range = atof(response_data.substr(space_pos + 1).c_str());
+                    id(${sen0609_id}_minimum_distance).publish_state(min_range);
+                    id(${sen0609_id}_maximum_distance).publish_state(max_range);
+                  }
+                }
+                else if (last_query_command == "getSensitivity") {
+                  size_t space_pos = response_data.find(' ');
+                  if (space_pos != std::string::npos) {
+                    float sustain = atof(response_data.substr(0, space_pos).c_str());
+                    float trigger = atof(response_data.substr(space_pos + 1).c_str());
+                    id(${sen0609_id}_sensitivity).publish_state(sustain);
+                    id(${sen0609_id}_trigger_sensitivity).publish_state(trigger);
+                  }
+                }
+                else if (last_query_command == "getLatency") {
+                  size_t space_pos = response_data.find(' ');
+                  if (space_pos != std::string::npos) {
+                    float on_lat = atof(response_data.substr(0, space_pos).c_str());
+                    float off_lat = atof(response_data.substr(space_pos + 1).c_str());
+                    id(${sen0609_id}_on_latency).publish_state(on_lat);
+                    id(${sen0609_id}_off_latency).publish_state(off_lat);
+                  }
+                }
+                else if (last_query_command == "getTrigRange") {
+                  float trig_range = atof(response_data.c_str());
+                  id(${sen0609_id}_trigger_distance).publish_state(trig_range);
+                }
+              
+                last_query_command = "";
+              }
+            
+              // Parse distance and speed data: DFDMD,target_count,target_number,distance,speed,energy,,*
+              if (data.rfind("$" "DFDMD", 0) == 0) {
+                // Throttling for distance/speed updates
+                static uint32_t last_distance_update = 0;
+                uint32_t now = millis();
+              
+                // Get throttle interval from user setting
+                uint32_t throttle_interval = 400; // Default 0.4s
+                if (id(${sen0609_id}_update_rate).current_option() == "0.3s") {
+                  throttle_interval = 300;
+                } else if (id(${sen0609_id}_update_rate).current_option() == "0.4s") {
+                  throttle_interval = 400;
+                } else if (id(${sen0609_id}_update_rate).current_option() == "0.5s") {
+                  throttle_interval = 500;
+                }
+              
+                std::vector<std::string> parts;
+                std::string current = "";
+              
+                for (char c : data) {
+                  if (c == ',') {
+                    parts.push_back(current);
+                    current = "";
+                  } else {
+                    current += c;
+                  }
+                }
+                parts.push_back(current); // Add last part
+              
+                if (parts.size() >= 6) {
+                  // Target count - always update for binary sensor
+                  int target_count = 0;
+                  if (parts[1].length() > 0 && parts[1] != " ") {
+                    target_count = atoi(parts[1].c_str());
+                  }
+                
+                  // Update mmWave binary sensor based on target count when in distance mode
+                  if (id(${sen0609_id}_mode).current_option() == "Distance and Speed") {
+                    id(${sen0609_id}_raw_presence).publish_state(target_count > 0);
+                  }
+                
+                  // Throttle distance/speed sensor updates
+                  if (now - last_distance_update >= throttle_interval) {
+                    last_distance_update = now;
+                  
+                    // Target count
+                    id(${sen0609_id}_target_count).publish_state(target_count);
+                  
+                    // Distance (parts[3])
+                    if (parts[3].length() > 0 && parts[3] != " ") {
+                      float distance = atof(parts[3].c_str());
+                      id(${sen0609_id}_target_distance).publish_state(distance);
+                    } else {
+                      id(${sen0609_id}_target_distance).publish_state(NAN);
+                    }
+                  
+                    // Speed (parts[4])
+                    if (parts[4].length() > 0 && parts[4] != " ") {
+                      float speed = atof(parts[4].c_str());
+                      id(${sen0609_id}_target_speed).publish_state(speed);
+                    } else {
+                      id(${sen0609_id}_target_speed).publish_state(NAN);
+                    }
+                  
+                    // Energy (parts[5])
+                    if (parts[5].length() > 0 && parts[5] != " " && parts[5].find('*') == std::string::npos) {
+                      int energy = atoi(parts[5].c_str());
+                      id(${sen0609_id}_target_energy).publish_state(energy);
+                    } else {
+                      id(${sen0609_id}_target_energy).publish_state(NAN);
+                    }
+                  }
+                }
+              }
+            }
+
+binary_sensor: 
+  - platform: template
+    name: Presence
+    id: ${sen0609_id}_raw_presence
+    device_class: occupancy
+    filters:
+      - delayed_on: 0s
+      - delayed_off: !lambda "return id(${sen0609_id}_presence_delay).state * 60000;"
+
+sensor:
+  - platform: template
+    name: ${sen0609_prefix} Target Distance
+    id: ${sen0609_id}_target_distance
+    unit_of_measurement: "m"
+    accuracy_decimals: 2
+    device_class: distance
+    state_class: measurement
+    entity_category: diagnostic
+    
+  - platform: template
+    name: ${sen0609_prefix}Target Speed
+    id: ${sen0609_id}_target_speed
+    unit_of_measurement: "m/s"
+    accuracy_decimals: 2
+    state_class: measurement
+    entity_category: diagnostic
+    
+  - platform: template
+    name: ${sen0609_prefix}Target Energy
+    id: ${sen0609_id}_target_energy
+    accuracy_decimals: 0
+    state_class: measurement
+    entity_category: diagnostic
+
+  - platform: template
+    name: ${sen0609_prefix}Target Count
+    id: ${sen0609_id}_target_count
+    accuracy_decimals: 0
+    state_class: measurement
+    entity_category: diagnostic
+
+select:
+  - platform: template
+    name: ${sen0609_prefix}Mode
+    id: ${sen0609_id}_mode
+    entity_category: config
+    icon: mdi:radar
+    optimistic: true
+    options:
+      - "Presence Detection"
+      - "Distance and Speed"
+    initial_option: "Presence Detection"
+    restore_value: true
+
+  - platform: template
+    name: ${sen0609_prefix}Distance and Speed Update Rate
+    id: ${sen0609_id}_update_rate
+    entity_category: config
+    icon: mdi:timer
+    optimistic: true
+    options:
+      - "0.3s"
+      - "0.4s" 
+      - "0.5s"
+    initial_option: "0.5s"
+    restore_value: true
+
+light:
+  - platform: binary
+    name: ${sen0609_prefix} LED
+    id: ${sen0609_id}_led
+    output: ${sen0609_id}_led_output
+    restore_mode: RESTORE_DEFAULT_OFF
+    entity_category: config
+
+output:
+  - platform: template
+    id: ${sen0609_id}_led_output
+    type: binary
+    write_action:
+      - delay: 50ms
+
+switch:
+  - platform: template
+    name: ${sen0609_prefix}Enable Sensor
+    id: ${sen0609_id}_enable_sensor
+    entity_category: config
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    turn_on_action:
+      - uart.write: { id: "${uart_id}", data: "sensorStart\r\n" }
+      - delay: 1s
+    turn_off_action:
+      - uart.write: { id: "${uart_id}", data: "sensorStop\r\n" }
+      - delay: 1s
+
+  - platform: template
+    name: ${sen0609_prefix}Enable Micro-motion Detection
+    id: ${sen0609_id}_micro_motion_detection
+    entity_category: config
+    icon: mdi:motion-sensor
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+button:
+  - platform: template
+    name: ${sen0609_prefix}Save Setting
+    id: ${sen0609_id}_save_setting
+    entity_category: config
+    on_press:
+      - switch.turn_off: ${sen0609_id}_enable_sensor
+      - delay: 1s
+      # Distance
+      - uart.write:
+          id: ${uart_id}
+          data: !lambda |-
+            char buf[64];
+            snprintf(buf, sizeof(buf), "setRange %.1f %.1f", id(${sen0609_id}_minimum_distance).state, id(${sen0609_id}_maximum_distance).state);
+            std::string ms(buf);
+            return std::vector<unsigned char>(ms.begin(), ms.end());
+      - delay: 1s
+      # Micro Motion
+      - if:
+          condition:
+            switch.is_on: ${sen0609_id}_micro_motion_detection
+          then:
+            uart.write: { id: "${uart_id}", data: "setMicroMotion 1\r\n" }
+          else:
+            uart.write: { id: "${uart_id}", data: "setMicroMotion 0\r\n" }
+      # LED
+      - if:
+          condition:
+            light.is_on: ${sen0609_id}_led
+          then:
+            uart.write: { id: "${uart_id}", data: "setLedMode 1 0\r\n" }
+          else:
+            uart.write: { id: "${uart_id}", data: "setLedMode 1 1\r\n" }
+      - if:
+          condition:
+            lambda: 'return id(${sen0609_id}_mode).current_option() == "Presence Detection";'
+          # Mode: Presence Detection
+          then:
+            - uart.write: { id: "${uart_id}", data: "setRunApp 0\r\n" }
+            - delay: 1s
+            - uart.write: { id: "${uart_id}", data: "sensorStop\r\n" }
+            - delay: 1s
+            # Enable UART presence output
+            - uart.write: { id: "${uart_id}", data: "setUartOutput 1 1\r\n" }
+            - delay: 1s
+            # Disable UART target output
+            - uart.write: { id: "${uart_id}", data: "setUartOutput 2 0\r\n" }
+            - delay: 1s
+            # Sensitivity
+            - uart.write:
+                id: ${uart_id}
+                data: !lambda |-
+                  char buf[64];
+                  snprintf(buf, sizeof(buf), "setSensitivity %.0f %.0f", id(${sen0609_id}_sensitivity).state, id(${sen0609_id}_trigger_sensitivity).state);
+                  std::string mss(buf);
+                  return std::vector<unsigned char>(mss.begin(), mss.end());
+            - delay: 1s
+            # Latency: On/Off
+            - uart.write:
+                id: ${uart_id}
+                data: !lambda |-
+                  char buf[64];
+                  snprintf(buf, sizeof(buf), "setLatency %.2f %.0f", id(${sen0609_id}_on_latency).state, id(${sen0609_id}_off_latency).state);
+                  std::string mss(buf);
+                  return std::vector<unsigned char>(mss.begin(), mss.end());
+            - delay: 1s
+            # Trigger Distance
+            - uart.write:
+                id: ${uart_id}
+                data: !lambda |-
+                  char buf[64];
+                  snprintf(buf, sizeof(buf), "setTrigRange %.1f", id(${sen0609_id}_trigger_distance).state);
+                  std::string mss(buf);
+                  return std::vector<unsigned char>(mss.begin(), mss.end());
+            - delay: 1s
+            - uart.write: { id: "${uart_id}", data: "saveConfig\r\n" }
+            - delay: 1s
+          # Mode: Distance and Speed
+          else:
+            - uart.write: { id: "${uart_id}", data: "setRunApp 1\r\n" }
+            - delay: 1s
+            - uart.write: { id: "${uart_id}", data: "sensorStop\r\n" }
+            - delay: 1s
+            # Enable UART target output
+            - uart.write: { id: "${uart_id}", data: "setUartOutput 2 1 1 1\r\n" }
+            - delay: 1s
+            # Disable UART presence output
+            - uart.write: { id: "${uart_id}", data: "setUartOutput 1 0\r\n" }
+            - delay: 1s
+            # Threshold Factor
+            - uart.write:
+                id: ${uart_id}
+                data: !lambda |-
+                  char buf[64];
+                  snprintf(buf, sizeof(buf), "setThrFactor %.1f", id(${sen0609_id}_threshold_factor).state);
+                  std::string mss(buf);
+                  return std::vector<unsigned char>(mss.begin(), mss.end());
+            - delay: 1s
+            - uart.write: { id: "${uart_id}", data: "saveConfig\r\n" }
+            - delay: 1s
+      - switch.turn_on: ${sen0609_id}_enable_sensor
+      - delay: 1s
+      - button.press: ${sen0609_id}_restart
+
+  - platform: template
+    name: ${sen0609_prefix}Refresh Setting
+    id: ${sen0609_id}_refresh_setting
+    entity_category: config
+    on_press:
+      - uart.write: { id: "${uart_id}", data: "getRange\r\n" }
+      - delay: 1s
+      - uart.write: { id: "${uart_id}", data: "getSensitivity\r\n" }
+      - delay: 1s
+      - uart.write: { id: "${uart_id}", data: "getLatency\r\n" }
+      - delay: 1s
+      - uart.write: { id: "${uart_id}", data: "getTrigRange\r\n" }
+      - delay: 1s
+
+  - platform: template
+    name: ${sen0609_prefix}Restart
+    id: ${sen0609_id}_restart
+    entity_category: config
+    on_press:
+      - uart.write: { id: "${uart_id}", data: "resetSystem\r\n" }
+
+  - platform: template
+    name: ${sen0609_prefix}Factory Reset
+    id: ${sen0609_id}_factory_reset
+    icon: mdi:cog-counterclockwise
+    entity_category: config
+    on_press:
+      - switch.turn_off: ${sen0609_id}_enable_sensor
+      - delay: 1s
+      - uart.write: { id: "${uart_id}", data: "resetCfg\r\n" }
+      - delay: 1s
+      - uart.write: { id: "${uart_id}", data: "setRunApp 0\r\n" }
+      - delay: 1s
+      - uart.write: { id: "${uart_id}", data: "saveConfig\r\n" }
+      - delay: 1s
+      - switch.turn_on: ${sen0609_id}_enable_sensor
+      - delay: 1s
+      - uart.write: { id: "${uart_id}", data: "getRange\r\n" }
+      - delay: 1s
+      - uart.write: { id: "${uart_id}", data: "getSensitivity\r\n" }
+      - delay: 1s
+      - uart.write: { id: "${uart_id}", data: "getLatency\r\n" }
+      - delay: 1s
+      - uart.write: { id: "${uart_id}", data: "getTrigRange\r\n" }
+      - delay: 1s
+      - select.set:
+          id: ${sen0609_id}_mode
+          option: "Presence Detection"
+      - switch.turn_off: ${sen0609_id}_micro_motion_detection
+      - number.set:
+          id: ${sen0609_id}_threshold_factor
+          value: 5.0
+      - light.turn_on:
+          id: ${sen0609_id}_led
+      - button.press: ${sen0609_id}_restart
+
+number:
+  - platform: template
+    name: ${sen0609_prefix}Minimum Distance
+    id: ${sen0609_id}_minimum_distance
+    icon: mdi:arrow-left-right
+    entity_category: config
+    min_value: 0.6
+    max_value: 25
+    initial_value: 0.9
+    optimistic: true
+    step: 0.1
+    restore_value: true
+    unit_of_measurement: m
+    mode: slider
+
+  - platform: template
+    name: ${sen0609_prefix}Maximum Distance
+    id: ${sen0609_id}_maximum_distance
+    icon: mdi:arrow-left-right
+    entity_category: config
+    min_value: 0
+    max_value: 25
+    initial_value: 3.2
+    optimistic: true
+    step: 0.1
+    restore_value: true
+    unit_of_measurement: m
+    mode: slider
+
+  - platform: template
+    name: ${sen0609_prefix}Off Latency
+    id: ${sen0609_id}_off_latency
+    icon: mdi:clock-end
+    entity_category: config
+    min_value: 2
+    max_value: 1500
+    initial_value: 2
+    optimistic: true
+    step: 1
+    restore_value: true
+    unit_of_measurement: seconds
+    mode: box
+
+  - platform: template
+    name: ${sen0609_prefix}On Latency
+    id: ${sen0609_id}_on_latency
+    icon: mdi:clock-start
+    entity_category: config
+    min_value: 0
+    max_value: 100
+    initial_value: 0
+    optimistic: true
+    step: 0.5
+    restore_value: true
+    unit_of_measurement: seconds
+    mode: box
+
+  - platform: template
+    name: ${sen0609_prefix}Trigger Distance
+    id: ${sen0609_id}_trigger_distance
+    icon: mdi:radar
+    entity_category: config
+    min_value: 0
+    max_value: 25
+    initial_value: 1.4
+    optimistic: true
+    step: 0.1
+    restore_value: true
+    unit_of_measurement: m
+    mode: slider
+
+  - platform: template
+    name: ${sen0609_prefix}Sustain Sensitivity
+    id: ${sen0609_id}_sensitivity
+    icon: mdi:target-variant
+    entity_category: config
+    min_value: 0
+    max_value: 9
+    initial_value: 1
+    optimistic: true
+    step: 1
+    restore_value: true
+
+  - platform: template
+    name: ${sen0609_prefix}Trigger Sensitivity
+    id: ${sen0609_id}_trigger_sensitivity
+    icon: mdi:target-variant
+    entity_category: config
+    min_value: 0
+    max_value: 9
+    initial_value: 5
+    optimistic: true
+    step: 1
+    restore_value: true
+
+  - platform: template
+    name: ${sen0609_prefix}Threshold Factor
+    id: ${sen0609_id}_threshold_factor
+    entity_category: config
+    icon: mdi:tune-variant
+    min_value: 1
+    max_value: 20
+    initial_value: 5
+    optimistic: true
+    step: 1
+    restore_value: true
+
+  - platform: template
+    name: ${sen0609_prefix}Presence delay
+    id: ${sen0609_id}_presence_delay
+    min_value: 1
+    max_value: 60
+    initial_value: 2
+    optimistic: true
+    step: 1
+    restore_value: true
+    unit_of_measurement: min
+    icon: mdi:timer-edit-outline
+    entity_category: config

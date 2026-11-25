@@ -1,0 +1,8 @@
+# Smart Edge Pro Sensor - model: pro-sensor-sen0395
+# Built and published by the GitHub release workflow.
+substitutions:
+  model_id: "pro-sensor-sen0395"
+  radar1_sen0395: true
+
+packages:
+  hardware: !include hardware/hw-2025.08.19.yaml   # board revision (pins) - it loads the shared firmware

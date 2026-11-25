@@ -1,0 +1,181 @@
+# Default values; override per include with `vars:` if needed.
+defaults:
+  FAN_ADDRESS: "0xF300"
+  FAN_COMMAND_REPEAT: "1"
+  FAN_SPEED_0: "0x6E91"
+  FAN_SPEED_1: "0x748B"
+  FAN_SPEED_2: "0x6F90"
+  FAN_SPEED_3: "0x758A"
+  FAN_SPEED_4: "0x6C93"
+  FAN_SPEED_5: "0x7788"
+  FAN_SPEED_6: "0x708F"
+  FAN_LIGHT: "0x6897"
+
+#   FAN_SPEED_0: "0x6E91"
+#   FAN_SPEED_1: "0x748B"
+#   FAN_SPEED_2: "0x6F90"
+#   FAN_SPEED_3: "0x758A"
+#   FAN_SPEED_4: "0x6C93"
+#   FAN_SPEED_5: "0x7788"
+#   FAN_SPEED_6: "0x708F"
+#   FAN_LIGHT: "0x6897"
+
+globals:
+  - id: atomberg_ir_received
+    type: bool
+    initial_value: "false"
+
+remote_receiver:
+  on_nec:
+    then:
+      - if:
+          condition:
+            and:
+              - lambda: |-
+                  if ((${FAN_COMMAND_REPEAT} == x.command_repeats) && (${FAN_ADDRESS} == x.address)) {
+                    return true;
+                  }
+                  return false;
+          then:
+            - homeassistant.event:
+                event: esphome.ir_receiver_atomberg_ir_fan
+                data_template:
+                  device: ${device_name}
+                  address: '{{ address }}'
+                  command: '{{ command }}'
+                  command_repeats: '{{ command_repeats }}'
+                variables:
+                  address: !lambda 'return x.address;'
+                  command: !lambda 'return x.command;'
+                  command_repeats: !lambda 'return x.command_repeats;'
+            - lambda: |-
+                id(atomberg_ir_received) = true;
+            - if:
+                condition:
+                  and:
+                    - lambda: 'return (x.command == ${FAN_SPEED_0});'
+                then:
+                  - number.set:
+                      id: ceiling_fan
+                      value: 0          
+            - if:
+                condition:
+                  and:
+                    - lambda: 'return (x.command == ${FAN_SPEED_1});'
+                then:
+                  - number.set:
+                      id: ceiling_fan
+                      value: 1         
+            - if:
+                condition:
+                  and:
+                    - lambda: 'return (x.command == ${FAN_SPEED_2});'
+                then:
+                  - number.set:
+                      id: ceiling_fan
+                      value: 2        
+            - if:
+                condition:
+                  and:
+                    - lambda: 'return (x.command == ${FAN_SPEED_3});'
+                then:
+                  - number.set:
+                      id: ceiling_fan
+                      value: 3
+            - if:
+                condition:
+                  and:
+                    - lambda: 'return (x.command == ${FAN_SPEED_4});'
+                then:
+                  - number.set:
+                      id: ceiling_fan
+                      value: 4
+            - if:
+                condition:
+                  and:
+                    - lambda: 'return (x.command == ${FAN_SPEED_5});'
+                then:
+                  - number.set:
+                      id: ceiling_fan
+                      value: 5
+            - if:
+                condition:
+                  and:
+                    - lambda: 'return (x.command == ${FAN_SPEED_6});'
+                then:
+                  - number.set:
+                      id: ceiling_fan
+                      value: 6
+
+api:
+  services:
+    - service: send_atomberg_ir_fan_code
+      variables:
+        address: string
+        command: string
+        command_repeats: int
+
+      then:
+        - remote_transmitter.transmit_nec:
+            address: !lambda 'return strtoul(address.c_str(), nullptr, 16);'
+            command: !lambda 'return strtoul(command.c_str(), nullptr, 16);'
+            command_repeats: !lambda 'return command_repeats;'
+
+number:
+  - platform: template
+    name: Ceiling Fan
+    id: ceiling_fan
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 6
+    step: 1
+    initial_value: 0
+    icon: mdi:ceiling-fan
+    on_value:
+      then:
+        - lambda: |-
+            if (id(atomberg_ir_received)) {
+              id(atomberg_ir_received)=false;
+            }
+            else {
+              int fan_speed = int(x);
+              if (fan_speed == 0) {
+                id(send_nec_ir)->execute(${FAN_ADDRESS}, ${FAN_SPEED_0}, ${FAN_COMMAND_REPEAT});
+              } else if (fan_speed == 1) {
+                id(send_nec_ir)->execute(${FAN_ADDRESS}, ${FAN_SPEED_1}, ${FAN_COMMAND_REPEAT});
+              } else if (fan_speed == 2) {
+                id(send_nec_ir)->execute(${FAN_ADDRESS}, ${FAN_SPEED_2}, ${FAN_COMMAND_REPEAT});
+              } else if (fan_speed == 3) {
+                id(send_nec_ir)->execute(${FAN_ADDRESS}, ${FAN_SPEED_3}, ${FAN_COMMAND_REPEAT});
+              } else if (fan_speed == 4) {
+                id(send_nec_ir)->execute(${FAN_ADDRESS}, ${FAN_SPEED_4}, ${FAN_COMMAND_REPEAT});
+              } else if (fan_speed == 5) {
+                id(send_nec_ir)->execute(${FAN_ADDRESS}, ${FAN_SPEED_5}, ${FAN_COMMAND_REPEAT});
+              } else if (fan_speed == 6) {
+                id(send_nec_ir)->execute(${FAN_ADDRESS}, ${FAN_SPEED_6}, ${FAN_COMMAND_REPEAT});
+              }
+            }
+script:
+  - id: send_nec_ir
+    parameters:
+      address: uint16_t
+      command: uint16_t
+      repeat: int
+    then:
+      - remote_transmitter.transmit_nec:
+          address: !lambda 'return address;'
+          command: !lambda 'return command;'
+          repeat: !lambda 'return repeat;'
+
+
+button:
+  - platform: template
+    name: Fan Light
+    id: atomberg_fan_light_button
+    icon: mdi:ceiling-fan-light
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${FAN_ADDRESS}
+          command: ${FAN_LIGHT}
+          command_repeats: ${FAN_COMMAND_REPEAT}

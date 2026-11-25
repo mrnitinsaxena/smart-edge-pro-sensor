@@ -1,0 +1,53 @@
+# Included when `update_manifest_url` is set (ESP Web Tools manifest.json,
+# e.g. hosted on GitHub Pages). Gives an "Firmware update" entity in HA.
+http_request:
+
+ota:
+  - platform: http_request
+    id: ota_http_request
+    on_begin:
+      - script.execute: { id: ota_feedback, stage: 0 }
+    on_end:
+      - script.execute: { id: ota_feedback, stage: 1 }
+    on_error:
+      - script.execute: { id: ota_feedback, stage: 2 }
+
+update:
+  - platform: http_request
+    id: firmware_update
+    name: Firmware update
+    source: ${ update_manifest_url if update_manifest_url is defined else "" }
+    on_update_available:
+      - script.execute: update_notice
+
+script:
+  # New firmware on GitHub: slow yellow pulse on the on-board LED for 10 s.
+  # Silent, skipped during Do Not Disturb or an alert; repeats after each restart until updated.
+  - id: update_notice
+    mode: restart
+    then:
+      # The first check runs right after Wi-Fi connects; wait until Home Assistant has
+      # connected too (that turns the status LED off), so the pulse isn't cut short.
+      - wait_until:
+          condition:
+            api.connected:
+          timeout: 60s
+      - delay: 3s
+      - if:
+          condition:
+            and:
+              - switch.is_off: dnd
+              - binary_sensor.is_off: safety_alert
+          then:
+            - script.execute:
+                id: led_show
+                effect: "info"
+                brightness: 0.5
+                red: 1
+                green: 0.7
+                blue: 0
+            - delay: 10s
+            - lambda: |-
+                auto *led = id(led_onboard);
+                if (!id(safety_alert).state && led->remote_values.is_on() && led->get_effect_name() == "info")
+                  led->turn_off().perform();

@@ -1,0 +1,4 @@
+# Included when `custom_area` is set: suggests the room to Home Assistant
+# when the device is first added.
+esphome:
+  area: ${ custom_area if custom_area is defined else "" }

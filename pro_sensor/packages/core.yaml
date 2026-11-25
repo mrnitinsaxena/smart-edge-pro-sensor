@@ -1,0 +1,822 @@
+substitutions:
+  # ════════════════════════════════════════════════════════════════════
+  #  USER OPTIONS - override any of these in your device's substitutions
+  # ════════════════════════════════════════════════════════════════════
+
+  # ── Device & identity ──
+  custom_device_name: ""        # hostname; empty = pro-sensor-xxxxxx (MAC suffix)
+  custom_friendly_name: ""      # name in Home Assistant; empty = "Pro Sensor"
+  custom_area: ""               # room suggested to HA on first add, e.g. "Guest Room"
+
+  # ── Network & security ──
+  wifi_ssid: ""                 # hard-coded Wi-Fi (both needed); empty = set up via the hotspot
+  wifi_password: ""
+  wifi_power_mode: "NONE"       # NONE | LIGHT | HIGH
+  api_key: ""                   # API encryption key; empty = provisioned by Home Assistant
+  web_username: ""              # web page login (both needed); empty = web page off
+  web_password: ""
+
+  # ── Presence radar 1 (enable one; UART on RADAR1_RX1_PIN / RADAR1_TX1_PIN) ──
+  radar1_ld2410: false          # HLK-LD2410
+  radar1_ld2412: false          # HLK-LD2412
+  radar1_ld2420: false          # HLK-LD2420
+  radar1_ld2450: false          # HLK-LD2450
+  radar1_sen0395: false         # DFRobot SEN0395
+  radar1_sen0609: false         # DFRobot SEN0609
+  radar1_mr24hpc1: false        # Seeed MR24HPC1
+  # ── Presence radar 2 (dual-radar boards; UART on RADAR2_RX1_PIN / RADAR2_TX1_PIN) ──
+  radar2_ld2450: false          # HLK-LD2450 (not with radar1_ld2450)
+
+  # ── IR remotes (all built in; each user picks their brand in Home Assistant) ──
+  ir_samsung_tv: true
+  ir_sony_tv: true
+  ir_daikin_ac: true
+  ir_panasonic_ac: true
+  ir_atomberg_fan: true
+
+  # ── Alerts & alarm ──
+  alarm_panel: true             # follow a Home Assistant alarm panel
+  alarm_panel_entity: "alarm_control_panel.alarmo"
+
+  # ── Performance & logs ──
+  cpu_frequency_mode: "LIGHT"   # LIGHT = 160 MHz (cooler, more accurate temperature) | NONE = 240 MHz | anything else = 80 MHz
+  logger_level: "WARN"          # DEBUG | INFO | WARN | ERROR
+  usb_logs: false               # logs over the USB cable (115200 baud)
+
+  # ════════════════════════════════════════════════════════════════════
+  #  PRODUCT CONSTANTS - normally leave these alone
+  # ════════════════════════════════════════════════════════════════════
+  company: "Resonate to Innovate"
+  brand: "Smart Edge"
+  device_name: "pro-sensor"
+  model: "Pro Sensor"
+  hardware_version: "2025.08.19"
+  firmware_version: "2026.11.25"
+  project_id: "Resonate to Innovate.Smart Edge Pro Sensor"
+  # Model - set by each model file in pro_sensor/; must match the radar (decides which update file the device follows):
+  #   pro-sensor           no radar
+  #   pro-sensor-sen0395   DFRobot SEN0395
+  #   pro-sensor-sen0609   DFRobot SEN0609
+  #   pro-sensor-mr24hpc1  Seeed MR24HPC1
+  #   pro-sensor-ld2410    HLK-LD2410
+  #   pro-sensor-ld2412    HLK-LD2412
+  #   pro-sensor-ld2420    HLK-LD2420
+  #   pro-sensor-ld2450    HLK-LD2450
+  #   pro-sensor-<radar 1>-ld2450   any of the above except LD2450 + HLK-LD2450 as radar 2 (dual-radar models)
+  model_id: "pro-sensor"
+  github_repo: "mrnitinsaxena/smart-edge-pro-sensor"
+  dashboard_import_url: "github://${github_repo}/pro_sensor/${model_id}.yaml@v${firmware_version}"
+  update_manifest_url: "https://mrnitinsaxena.github.io/smart-edge-pro-sensor/${model_id}/manifest.json"
+
+  # Pins - defaults = board 2025.08.19. Each board's file in pro_sensor/hardware/ sets its own.
+  SDA_I2C_PIN: "21"
+  SCL_I2C_PIN: "22"
+  BUZZER_PIN: "23"
+  WS2812_PIN: "25"              # on-board status LED
+  EXTERNAL_LED_PIN: "33"        # external WS2812 strip connector
+  EXTERNAL_LED_MAX: "60"        # max LEDs on the external strip
+  IR_RECEIVER_PIN: "18"
+  IR_TRANSMITTER_PIN: "19"
+  RADAR1_RX1_PIN: "16"          # radar 1: ESP32 receives (radar TX)
+  RADAR1_TX1_PIN: "17"          # radar 1: ESP32 sends (radar RX)
+  RADAR2_RX1_PIN: "26"          # radar 2 (LD2450, dual-radar models): ESP32 receives
+  RADAR2_TX1_PIN: "27"          # radar 2 (LD2450, dual-radar models): ESP32 sends
+
+  sound_one_beep: 'one_short:d=4,o=5,b=100:16e6'
+  sound_two_beep: 'two_short:d=4,o=5,b=100:16e6,16e6'
+  sound_three_beep: 'three_short:d=4,o=5,b=100:16e6,16e6,16e6'
+  sound_on_error: 'long:d=1,o=5,b=100:e6'
+  sound_siren: 'siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e,d,e'
+
+  board_reserve_ma: "300"
+
+  ir_capabilities: !include
+    file: core-ir.yaml
+  ir_tv_select_capabilities: !include
+    file: core-ir-tv-select.yaml
+  ir_ac_select_capabilities: !include
+    file: core-ir-ac-select.yaml
+  ir_fan_select_capabilities: !include
+    file: core-ir-fan-select.yaml
+  wifi_custom_capabilities: !include
+    file: core-wifi-custom.yaml
+  area_capabilities: !include
+    file: core-area.yaml
+  api_key_capabilities: !include
+    file: core-api-key.yaml
+  web_server_capabilities: !include
+    file: core-web-server.yaml
+  alarm_panel_capabilities: !include
+    file: core-alarm-panel.yaml
+  dashboard_import_capabilities: !include
+    file: core-dashboard-import.yaml
+  updates_capabilities: !include
+    file: core-updates.yaml
+  atomberg_fan_capabilities: !include
+    file: ir-atomberg-fan.yaml
+  daikin_ac_capabilities: !include
+    file: ir-climate-daikin-cool.yaml
+  panasonic_ac_capabilities: !include
+    file: ir-climate-panasonic-rkr.yaml
+  samsung_tv_capabilities: !include
+    file: ir-samsung-tv.yaml
+  sony_tv_capabilities: !include
+    file: ir-sony-tv.yaml
+
+  ld2410_uart_capabilities: !include
+    file: hlk-ld2410-uart.yaml
+  ld2412_capabilities: !include
+    file: hlk-ld2412-uart.yaml
+  ld2420_uart_capabilities: !include
+    file: hlk-ld2420-uart.yaml
+  ld2450_capabilities: !include
+    file: hlk-ld2450-uart.yaml
+  sen0395_uart_capabilities: !include
+    file: sen0395-uart.yaml
+  sen0609_uart_capabilities: !include
+    file: sen0609-uart.yaml
+  mr24hpc1_uart_capabilities: !include
+    file: mr24hpc1-uart.yaml
+  radar2_ld2450_capabilities: !include
+    file: hlk-ld2450-uart.yaml
+    vars:
+      uart_id: "uart_bus_radar2"
+      ld2450_id: "radar2_ld2450"
+      ld2450_prefix: "Radar 2 "
+      name_suffix: " 2"
+      rx_pin: ${RADAR2_RX1_PIN}
+      tx_pin: ${RADAR2_TX1_PIN}
+
+  presence_sensor_model: ${ ("HLK-LD2410" if radar1_ld2410 is defined and radar1_ld2410 else ("HLK-LD2412" if radar1_ld2412 is defined and radar1_ld2412 else ("HLK-LD2420" if radar1_ld2420 is defined and radar1_ld2420 else ("HLK-LD2450" if radar1_ld2450 is defined and radar1_ld2450 else ("DFRobot SEN0395" if radar1_sen0395 is defined and radar1_sen0395 else ("DFRobot SEN0609" if radar1_sen0609 is defined and radar1_sen0609 else ("Seeed MR24HPC1" if radar1_mr24hpc1 is defined and radar1_mr24hpc1 else "Not installed"))))))) ~ (" + HLK-LD2450 (radar 2)" if radar2_ld2450 is defined and radar2_ld2450 else "") }
+
+
+packages:
+  core_ir: ${ ir_capabilities if (ir_atomberg_fan is defined and ir_atomberg_fan) or (ir_daikin_ac is defined and ir_daikin_ac) or (ir_panasonic_ac is defined and ir_panasonic_ac) or (ir_samsung_tv is defined and ir_samsung_tv) or (ir_sony_tv is defined and ir_sony_tv) else {} }
+  wifi_custom_capabilities: ${ wifi_custom_capabilities if wifi_ssid is defined and wifi_password is defined and wifi_ssid != "" and wifi_password != "" else {} }
+  api_key_capabilities: ${ api_key_capabilities if api_key is defined and api_key != "" else {} }
+  area_capabilities: ${ area_capabilities if custom_area is defined and custom_area != "" else {} }
+  web_server_capabilities: ${ web_server_capabilities if web_username is defined and web_password is defined and web_username != "" and web_password != "" else {} }
+  alarm_panel_capabilities: ${ alarm_panel_capabilities if not (alarm_panel is defined and not alarm_panel) else {} }
+  dashboard_import_capabilities: ${ dashboard_import_capabilities if dashboard_import_url is defined and dashboard_import_url != "" else {} }
+  updates_capabilities: ${ updates_capabilities if update_manifest_url is defined and update_manifest_url != "" else {} }
+  atomberg_fan_capabilities: ${ atomberg_fan_capabilities if ir_atomberg_fan is defined and ir_atomberg_fan else {} }
+  daikin_ac_capabilities: ${ daikin_ac_capabilities if ir_daikin_ac is defined and ir_daikin_ac else {} }
+  panasonic_ac_capabilities: ${ panasonic_ac_capabilities if ir_panasonic_ac is defined and ir_panasonic_ac else {} }
+  samsung_tv_capabilities: ${ samsung_tv_capabilities if ir_samsung_tv is defined and ir_samsung_tv else {} }
+  sony_tv_capabilities: ${ sony_tv_capabilities if ir_sony_tv is defined and ir_sony_tv else {} }
+  ir_tv_select_capabilities: ${ ir_tv_select_capabilities if (ir_samsung_tv is defined and ir_samsung_tv) or (ir_sony_tv is defined and ir_sony_tv) else {} }
+  ir_ac_select_capabilities: ${ ir_ac_select_capabilities if (ir_daikin_ac is defined and ir_daikin_ac) or (ir_panasonic_ac is defined and ir_panasonic_ac) else {} }
+  ir_fan_select_capabilities: ${ ir_fan_select_capabilities if ir_atomberg_fan is defined and ir_atomberg_fan else {} }
+  ld2412_capabilities: ${ ld2412_capabilities if radar1_ld2412 is defined and radar1_ld2412 else {} }
+  ld2450_capabilities: ${ ld2450_capabilities if radar1_ld2450 is defined and radar1_ld2450 else {} }
+  ld2410_capabilities: ${ ld2410_uart_capabilities if radar1_ld2410 is defined and radar1_ld2410 else {} }
+  ld2420_capabilities: ${ ld2420_uart_capabilities if radar1_ld2420 is defined and radar1_ld2420 else {} }
+  sen0395_capabilities: ${ sen0395_uart_capabilities if radar1_sen0395 is defined and radar1_sen0395 else {} }
+  sen0609_capabilities: ${ sen0609_uart_capabilities if radar1_sen0609 is defined and radar1_sen0609 else {} }
+  mr24hpc1_capabilities: ${ mr24hpc1_uart_capabilities if radar1_mr24hpc1 is defined and radar1_mr24hpc1 else {} }
+  radar2_capabilities: ${ radar2_ld2450_capabilities if radar2_ld2450 is defined and radar2_ld2450 and not (radar1_ld2450 is defined and radar1_ld2450) else {} }   # LD2450 only once
+
+time:
+  - platform: homeassistant     # time and time zone come from the customer's Home Assistant
+
+ota:
+  - platform: esphome
+    id: ota_esphome
+    on_begin:
+      - script.execute: { id: ota_feedback, stage: 0 }
+    on_end:
+      - script.execute: { id: ota_feedback, stage: 1 }
+    on_error:
+      - script.execute: { id: ota_feedback, stage: 2 }
+
+factory_reset:
+  resets_required: 5
+  max_delay: 10s
+
+captive_portal:
+
+output:
+  - platform: ledc
+    pin: ${BUZZER_PIN}
+    id: buzzer_ledc
+
+rtttl:
+  output: buzzer_ledc
+  id: buzzer
+  gain: 0.6
+  on_finished_playback:
+    - if:
+        condition:
+          - binary_sensor.is_on: safety_alert
+        then:
+          - delay: 1ms 
+          - rtttl.play:
+              id: buzzer
+              rtttl: ${sound_siren}
+logger:
+  level: ${ "WARN" if logger_level is not defined or logger_level == "" else logger_level }
+  baud_rate: ${ 0 if (usb_logs is defined and not usb_logs) else 115200 }
+
+esphome:
+  name: ${ device_name if custom_device_name is not defined or custom_device_name == "" else custom_device_name }
+  friendly_name: ${ model if custom_friendly_name is not defined or custom_friendly_name == "" else custom_friendly_name }
+  name_add_mac_suffix: ${ false if (custom_device_name is defined and custom_device_name != "") or (custom_friendly_name is defined and custom_friendly_name != "") else true }
+  project:
+    name: ${project_id}
+    version: ${firmware_version}
+  on_boot:
+    - priority: -100
+      then:
+        - if:
+            condition:
+              switch.is_off: ext_strip_enabled
+            then:
+              - light.turn_off: led_strip
+        - script.execute: apply_led_cap
+        - if:
+            condition:
+              switch.is_off: dnd
+            then:
+              - script.execute:
+                  id: led_show
+                  effect: "info"
+                  brightness: 0.5
+                  red: 0
+                  green: 1
+                  blue: 0
+              - delay: 1ms
+              - rtttl.play:
+                  rtttl: ${sound_one_beep}
+    - priority: 600
+      then:
+        - lambda: |-
+            // The LED strip and its length only appear in Home Assistant when enabled
+            const bool ext = id(ext_strip_enabled).state;
+            id(led_strip).set_internal(!ext);
+            id(led_strip_length).set_internal(!ext);
+        - text_sensor.template.publish:
+            id: hardware_version
+            state: ${hardware_version}
+        - text_sensor.template.publish:
+            id: presence_sensor
+            state: ${presence_sensor_model}
+
+esp32:
+  board: "esp32dev"
+  cpu_frequency: ${ "240MHz" if cpu_frequency_mode is not defined or cpu_frequency_mode in ("", "NONE") else "160MHz" if cpu_frequency_mode == "LIGHT" else "80MHz" }
+  framework:
+    type: "esp-idf"
+    version: "recommended"
+    advanced:
+      minimum_chip_revision: "3.1"
+
+i2c:
+  sda: ${SDA_I2C_PIN}
+  scl: ${SCL_I2C_PIN}
+  scan: false
+  id: i2c_bus
+
+wifi:
+  min_auth_mode: WPA2
+  power_save_mode: ${ "NONE" if (wifi_power_mode is not defined or  wifi_power_mode in ("", "NONE")) else "LIGHT" if wifi_power_mode == "LIGHT" else "HIGH" }
+  ap: {}
+  on_connect:
+    if:
+      condition:
+        not:
+          - binary_sensor.is_on: safety_alert
+      then:
+        - if:
+            condition:
+              switch.is_off: dnd
+            then:
+              - script.execute:
+                  id: led_show
+                  effect: "info"
+                  brightness: 0.5
+                  red: 0
+                  green: 0
+                  blue: 1
+              - rtttl.play:
+                  rtttl: ${sound_two_beep}
+  on_disconnect:
+    if:
+      condition:
+        not:
+          - binary_sensor.is_on: safety_alert
+      then:
+        - if:
+            condition:
+              switch.is_off: dnd
+            then:
+              - script.execute:
+                  id: led_show
+                  effect: "error"
+                  brightness: 0.5
+                  red: 0
+                  green: 1
+                  blue: 0
+              - rtttl.play:
+                  rtttl: ${sound_on_error}
+
+api:
+  homeassistant_states: true
+  reboot_timeout: 0s
+  encryption: {}
+  on_client_connected:
+    if:
+      condition:
+        not:
+          - binary_sensor.is_on: safety_alert
+      then:
+        - lambda: |-
+            auto *led = id(led_onboard);
+            if (led->remote_values.is_on()) led->turn_off().perform();
+        - if:
+            condition:
+              switch.is_off: dnd
+            then:
+              - rtttl.play:
+                  rtttl: ${sound_three_beep}
+  on_client_disconnected:
+    if:
+      condition:
+        and:
+          - not:
+              - binary_sensor.is_on: safety_alert
+          - not:
+              - api.connected:     # Home Assistant often reconnects before the old link times out
+      then:
+        - if:
+            condition:
+              switch.is_off: dnd
+            then:
+              - script.execute:
+                  id: led_show
+                  effect: "error"
+                  brightness: 0.5
+                  red: 0
+                  green: 0
+                  blue: 1
+              - rtttl.play:
+                  rtttl: ${sound_on_error}
+
+binary_sensor:
+  - platform: status
+    name: "Home Assistant"
+    id: ha_api_connected
+    icon: mdi:api
+    device_class: connectivity
+    entity_category: diagnostic
+    disabled_by_default: true
+
+  - platform: template
+    name: "High temperature alert"
+    id: internal_alert
+    icon: mdi:thermometer-alert
+    device_class: heat
+    lambda: |-
+      return id(sensor_temperature).has_state() &&
+             id(fire_threshold_temperature).has_state() &&
+             id(sensor_temperature).state >= id(fire_threshold_temperature).state;
+    filters:
+      - delayed_off: 10s
+
+  - platform: template
+    name: "Safety alert"
+    id: safety_alert
+    icon: mdi:exit-run
+    device_class: safety
+    lambda: 'return id(internal_alert).state || id(external_alarm).state${ " || id(external_alert).state" if not (alarm_panel is defined and not alarm_panel) else "" };'
+    on_press:
+      then:
+        - lambda: 'wifi::global_wifi_component->set_reboot_timeout(0);'   # no Wi-Fi reboot while the siren sounds
+        - script.execute:
+            id: led_show
+            effect: "emergency"
+            brightness: 1.0
+            red: 1
+            green: 0
+            blue: 0
+        - script.execute: strip_alert_start
+        - if:
+            condition:
+              rtttl.is_playing:
+            then:
+              - rtttl.stop:
+            else:
+              - rtttl.play:
+                  rtttl: ${sound_siren}
+    on_release:
+      then:
+        - if:
+            condition:
+              rtttl.is_playing:
+            then:
+              - rtttl.stop:
+        - lambda: |-
+            auto *led = id(led_onboard);
+            if (led->remote_values.is_on()) {
+              auto call = led->turn_off();
+              call.set_brightness(0.25f);
+              call.set_effect("None");
+              call.perform();
+            }
+        - script.execute: strip_alert_end
+        - lambda: 'wifi::global_wifi_component->set_reboot_timeout(15 * 60 * 1000);'   # back to the normal 15 min
+
+switch:
+  - platform: template
+    name: "External LED strip"
+    id: ext_strip_enabled
+    icon: mdi:led-strip-variant
+    entity_category: config
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+      - script.execute: restart_to_apply
+    on_turn_off:
+      - light.turn_off: led_strip
+      - script.execute: restart_to_apply
+
+  - platform: template
+    name: "External alarm"
+    id: external_alarm
+    icon: mdi:alarm-light
+    optimistic: true
+    restore_mode: ALWAYS_OFF
+
+  - platform: factory_reset
+    name: Factory reset
+    id: device_reset
+    entity_category: config
+    
+  - platform: restart
+    name: Restart
+    id: device_restart
+    entity_category: config
+
+  - platform: template
+    name: "Do Not Disturb"
+    id: dnd
+    icon: mdi:minus-circle
+    entity_category: config
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+sensor:
+  - platform: internal_temperature
+    name: CPU Temperature
+    entity_category: diagnostic
+    disabled_by_default: true
+
+  - platform: wifi_signal
+    name: WiFi signal
+    entity_category: diagnostic
+
+  - platform: uptime
+    type: timestamp
+    name: Uptime
+    entity_category: diagnostic
+    disabled_by_default: true
+
+  - platform: bh1750
+    i2c_id: i2c_bus
+    address: 0x23
+    name: Illuminance
+    id: sensor_illuminance
+    filters:
+      - lambda: |-
+          return x + id(sensor_illuminance_offset).state;
+      - or:
+          - throttle: 300s
+          - delta: 10%
+
+  - platform: aht10
+    variant: AHT20
+    update_interval: 15s          # fast reaction for the high-temperature alert
+    temperature:
+      name: Temperature
+      id: sensor_temperature
+      filters:
+        - lambda: |-
+            return x + id(sensor_temperature_offset).state;
+        - or:
+            - throttle: 300s
+            - delta: 0.2
+    humidity:
+      name: Humidity
+      id: sensor_humidity
+      filters:
+        - lambda: |-
+            return x + id(sensor_humidity_offset).state;
+        - or:
+            - throttle: 300s
+            - delta: 1.0
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: IP address
+      id: ip_address
+      icon: mdi:ip-network
+      entity_category: diagnostic
+    ssid:
+      name: Connected WiFi
+      id: wifi_ssid
+      icon: mdi:access-point-network
+      entity_category: diagnostic
+    mac_address:
+      name: Mac address
+      id: mac_address
+      icon: mdi:lan
+      entity_category: diagnostic
+
+  - platform: template  
+    name: Presence sensor
+    id: presence_sensor
+    icon: mdi:motion-sensor
+    entity_category: diagnostic
+
+  - platform: template  
+    name: Hardware version
+    id: hardware_version
+    icon: mdi:tag-check-outline
+    entity_category: diagnostic
+
+
+number:
+  - platform: template
+    name: "Strip length"
+    id: led_strip_length
+    icon: mdi:ruler
+    entity_category: config
+    optimistic: true
+    restore_value: true
+    min_value: 1
+    max_value: ${EXTERNAL_LED_MAX}
+    step: 1
+    initial_value: ${EXTERNAL_LED_MAX}
+    mode: box
+    on_value:
+      - script.execute: apply_led_cap
+
+  - platform: template
+    name: "High temperature threshold"
+    id: fire_threshold_temperature
+    optimistic: true
+    restore_value: true
+    min_value: 30
+    max_value: 85
+    step: 1
+    initial_value: 55
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-lines
+    entity_category: config
+
+  - platform: template
+    name: Temperature Offset
+    id: sensor_temperature_offset
+    optimistic: true
+    restore_value: true
+    min_value: -20
+    max_value: 20
+    step: 0.1
+    initial_value: -1.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-lines
+    entity_category: config
+
+  - platform: template
+    name: Humidity Offset
+    id: sensor_humidity_offset
+    optimistic: true
+    restore_value: true
+    min_value: -20
+    max_value: 20
+    step: 0.1
+    initial_value: -5
+    unit_of_measurement: "%"
+    icon: mdi:water-percent
+    entity_category: config
+
+  - platform: template
+    name: Illuminance Offset
+    id: sensor_illuminance_offset
+    optimistic: true
+    restore_value: true
+    min_value: -500
+    max_value: 500
+    step: 10
+    initial_value: 0
+    unit_of_measurement: "lx"
+    icon: mdi:brightness-auto
+    entity_category: config
+
+select:
+  - platform: template
+    name: "Power supply"
+    id: power_supply_select
+    icon: mdi:power-plug
+    entity_category: config
+    optimistic: true
+    restore_value: true
+    options:
+      - "0.5 A"      # computer USB port
+      - "1 A"        # HLK-5M05 / small USB charger
+      - "2 A"
+      - "3 A"
+      - "5 A"        # external strip supply
+    initial_option: "1 A"
+    on_value:
+      then:
+        - script.execute: apply_led_cap
+
+light:
+  # On-board status LED - always present, shows boot / Wi-Fi / alert signals
+  - platform: esp32_rmt_led_strip
+    channel_colors: GRB
+    pin: ${WS2812_PIN}
+    num_leds: 1
+    chipset: ws2812
+    rmt_symbols: 64               # keep RMT memory free for IR + both LED outputs
+    id: led_onboard
+    name: Notification light
+    icon: mdi:led-on
+    default_transition_length: 0s
+    effects: &led_effects
+      - addressable_lambda:
+          name: "emergency"
+          update_interval: 60ms
+          lambda: |-
+            static uint8_t step = 0;
+            if (initial_run) step = 0;               // start pattern fresh each time
+            int n = it.size();
+            if (n > 1) n = std::min(n, (int) id(led_strip_length).state);   // only the LEDs actually fitted
+            const Color red(255, 0, 0);
+            const Color blue(0, 0, 255);
+            const bool on    = (step % 2 == 0);      // flash on/off every 60 ms
+            const bool first = (step < 6);           // first 3 flashes red, next 3 blue
+            it.all() = Color::BLACK;
+
+            if (on) {
+              if (n == 1) {
+                it.all() = first ? red : blue;       // single LED: red x3, blue x3
+              } else if (first) {
+                it.range(0, n / 2) = red;            // left half red x3
+              } else {
+                it.range(n / 2, n) = blue;           // right half blue x3
+              }
+            }
+            step = (step + 1) % 12;
+      - pulse:
+          name: "info"
+          update_interval: 2s
+          min_brightness: 15%
+          max_brightness: 80%
+          transition_length:
+            on_length: 500ms
+            off_length: 1.5s
+      - pulse:
+          name: "warning"
+          transition_length: 1s
+          update_interval: 1s
+          min_brightness: 15%
+          max_brightness: 80%
+      - pulse:
+          name: "error"
+          transition_length: 0.5s
+          update_interval: 0.5s
+          min_brightness: 15%
+          max_brightness: 80%
+      - pulse:
+          name: "alert"
+          transition_length: 0.25s
+          update_interval: 0.25s
+          min_brightness: 15%
+          max_brightness: 100%
+    on_state: &led_on_state
+      then:
+        - script.execute: apply_led_cap
+
+  # External WS2812 strip on the LED connector - independent light, enabled with "External LED strip"
+  - platform: esp32_rmt_led_strip
+    channel_colors: GRB
+    pin: ${EXTERNAL_LED_PIN}
+    num_leds: ${EXTERNAL_LED_MAX}
+    chipset: ws2812
+    rmt_symbols: 64               # keep RMT memory free for IR + both LED outputs
+    id: led_strip
+    restore_mode: RESTORE_DEFAULT_OFF
+    name: LED strip
+    icon: mdi:led-strip-variant
+    default_transition_length: 0s
+    effects: *led_effects
+    on_state: *led_on_state
+
+globals:
+  - id: strip_saved_values          # strip state before an alert, restored afterwards
+    type: light::LightColorValues
+  - id: strip_saved_effect
+    type: std::string
+  - id: strip_in_alert
+    type: bool
+    initial_value: "false"
+
+script:
+  # A setting that needs a restart was changed: save it and restart (ignored while starting up)
+  - id: restart_to_apply
+    mode: single
+    then:
+      - if:
+          condition:
+            lambda: 'return App.is_setup_complete();'
+          then:
+            - logger.log: "Setting changed, restarting to apply"
+            - delay: 1s
+            - lambda: 'App.safe_reboot();'
+
+  # Firmware update feedback on the on-board LED
+  - id: ota_feedback
+    mode: restart
+    parameters:
+      stage: int        # 0 = started, 1 = finished, 2 = failed
+    then:
+      - lambda: |-
+          auto call = id(led_onboard)->turn_on();
+          call.set_effect("None");
+          call.set_brightness(0.6f);
+          if (stage == 0)      call.set_rgb(0.6f, 0.0f, 1.0f);   // purple: updating, don't unplug
+          else if (stage == 1) call.set_rgb(0.0f, 1.0f, 0.0f);   // green: done, restarting
+          else                 call.set_rgb(1.0f, 0.0f, 0.0f);   // red: failed
+          call.perform();
+
+  # During an alert the external strip (if enabled) runs the same emergency effect
+  - id: strip_alert_start
+    mode: queued
+    then:
+      - lambda: |-
+          if (!id(ext_strip_enabled).state || id(strip_in_alert)) return;
+          auto *strip = id(led_strip);
+          id(strip_saved_values) = strip->remote_values;
+          id(strip_saved_effect) = std::string(strip->get_effect_name().c_str(), strip->get_effect_name().size());
+          id(strip_in_alert) = true;
+          auto call = strip->turn_on();
+          call.set_effect("emergency");
+          call.set_brightness(1.0f);
+          call.set_rgb(1.0f, 0.0f, 0.0f);
+          call.perform();
+
+  # After the alert the strip goes back to exactly what it was doing before
+  - id: strip_alert_end
+    mode: queued
+    then:
+      - lambda: |-
+          if (!id(strip_in_alert)) return;
+          id(strip_in_alert) = false;
+          auto call = id(led_strip)->make_call();
+          call.from_light_color_values(id(strip_saved_values));
+          call.set_effect(id(strip_saved_effect).empty() ? std::string("None") : id(strip_saved_effect));
+          call.perform();
+
+  # Show a status colour/effect on the on-board LED
+  - id: led_show
+    mode: queued
+    parameters:
+      effect: string
+      brightness: float
+      red: float
+      green: float
+      blue: float
+    then:
+      - lambda: |-
+          auto *led = id(led_onboard);
+          auto call = led->turn_on();
+          call.set_effect(effect);
+          call.set_brightness(brightness);
+          call.set_rgb(red, green, blue);
+          call.perform();
+
+  - id: apply_led_cap
+    mode: queued
+    then:
+      - lambda: |-
+          // On-board LED: a single LED, never needs capping
+          static_cast<light::AddressableLight *>(id(led_onboard)->get_output())->set_correction(1.0f, 1.0f, 1.0f);
+
+          if (!id(ext_strip_enabled).state) return;
+          auto *out = static_cast<light::AddressableLight *>(id(led_strip)->get_output());
+
+          // Cap the strip to the selected supply
+          static const float supply_ma[] = {500, 1000, 2000, 3000, 5000};   // same order as options
+          auto idx = id(power_supply_select).active_index();
+          const float supply = idx.has_value() ? supply_ma[idx.value()] : 1000.0f;
+
+          const float n = std::min((float) out->size(), id(led_strip_length).state);
+          const float budget = supply - ${board_reserve_ma} - ${ 120 if radar2_ld2450 is defined and radar2_ld2450 else 0 } - 60.0f - n * 1.0f;   // 60 mA on-board LED, 120 mA radar 2
+          // "emergency" lights half the strip in one colour (~20 mA per lit LED); anything else can be full white (60 mA)
+          const bool emergency = id(led_strip)->get_effect_name() == "emergency";
+          const float per_led_ma = emergency ? 10.0f : 60.0f;
+          const float c = std::max(0.05f, std::min(1.0f, budget / (n * per_led_ma)));
+          out->set_correction(c, c, c);
+          ESP_LOGI("power", "Supply %.0f mA, strip %d LEDs, cap %.0f%%", supply, (int) n, c * 100);

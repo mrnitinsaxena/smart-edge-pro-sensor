@@ -1,0 +1,106 @@
+# Default values; override per include with `vars:` if needed.
+defaults:
+  SONY_TV_POWER: "0xA90"
+  SONY_TV_MUTE: "0x290"
+  SONY_TV_VOLUME_UP: "0x490"
+  SONY_TV_VOLUME_DOWN: "0xC90"
+  SONY_TV_MEDIA: "0x2CE9"
+
+remote_receiver:
+  on_sony:
+    then:
+      - homeassistant.event:
+          event: esphome.ir_receiver_sony
+          data_template:
+            device: ${device_name}
+            data: '{{ data }}'
+            nbits: '{{ nbits }}'
+          variables:
+            data: !lambda 'return x.data;'
+            nbits: !lambda 'return x.nbits;'
+
+api:
+  services:
+    - service: send_sony_tv_ir_code
+      variables:
+        data: string
+        nbits: int
+      then:
+        - remote_transmitter.transmit_sony:
+            data: !lambda 'return strtoul(data.c_str(), nullptr, 16);'
+            nbits: !lambda 'return nbits;'
+            repeat:
+              times: 3
+              wait_time: 40ms
+
+button:
+  - platform: template
+    name: Sony TV Power Toggle
+    id: sony_tv_power_toggle_button
+    icon: mdi:power
+    on_press:
+      - remote_transmitter.transmit_sony:
+          data: ${SONY_TV_POWER}
+          nbits: 12
+          repeat:
+            times: 3
+            wait_time: 40ms
+
+  - platform: template
+    name: TV Volume Up
+    id: sony_tv_volume_up_button
+    icon: mdi:volume-plus
+    on_press:
+      - remote_transmitter.transmit_sony:
+          data: ${SONY_TV_VOLUME_UP}
+          nbits: 12
+          repeat:
+            times: 3
+            wait_time: 40ms
+
+  - platform: template
+    name: TV Volume Down
+    id: sony_tv_volume_down_button
+    icon: mdi:volume-minus
+    on_press:
+      - remote_transmitter.transmit_sony:
+          data: ${SONY_TV_VOLUME_DOWN}
+          nbits: 12
+          repeat:
+            times: 3
+            wait_time: 40ms
+
+  - platform: template
+    name: TV Mute
+    id: sony_tv_mute_button
+    icon: mdi:volume-mute
+    on_press:
+      - remote_transmitter.transmit_sony:
+          data: ${SONY_TV_MUTE}
+          nbits: 12
+          repeat:
+            times: 3
+            wait_time: 40ms
+
+  - platform: template
+    name: TV Play Pause
+    id: sony_tv_play_pause_button
+    icon: mdi:play-pause
+    on_press:
+      - remote_transmitter.transmit_sony:
+          data: ${SONY_TV_MEDIA}
+          nbits: 12
+          repeat:
+            times: 3
+            wait_time: 40ms
+
+binary_sensor:
+  - platform: remote_receiver
+    id: sony_tv_power_toggle
+    name: "Sony TV Power Toggle"
+    icon: mdi:power
+    filters:
+      - delayed_off: 200ms
+    sony:
+      data: 0x00000FFF
+      nbits: 12

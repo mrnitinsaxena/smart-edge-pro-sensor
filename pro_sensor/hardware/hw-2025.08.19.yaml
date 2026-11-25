@@ -1,0 +1,22 @@
+# Smart Edge Pro Sensor - board revision 2025.08.19
+# Pins of this PCB. A new board revision gets its own file next to this one
+# and its own model files (e.g. pro-sensor-r2-ld2410.yaml), so a device can
+# only ever receive firmware built for its own pin layout.
+substitutions:
+  hardware_version: "2025.08.19"
+
+  SDA_I2C_PIN: "21"
+  SCL_I2C_PIN: "22"
+  BUZZER_PIN: "23"
+  WS2812_PIN: "25"              # on-board status LED
+  EXTERNAL_LED_PIN: "33"        # external WS2812 strip connector
+  EXTERNAL_LED_MAX: "60"        # max LEDs on the external strip
+  IR_RECEIVER_PIN: "18"
+  IR_TRANSMITTER_PIN: "19"
+  RADAR1_RX1_PIN: "16"          # radar 1: ESP32 receives (radar TX)
+  RADAR1_TX1_PIN: "17"          # radar 1: ESP32 sends (radar RX)
+  RADAR2_RX1_PIN: "26"          # radar 2 (LD2450, dual-radar models): ESP32 receives
+  RADAR2_TX1_PIN: "27"          # radar 2 (LD2450, dual-radar models): ESP32 sends
+
+packages:
+  core: !include ../packages/core.yaml

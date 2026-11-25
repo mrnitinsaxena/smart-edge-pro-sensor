@@ -1,0 +1,10 @@
+# Included when `api_key` is set (your own/home devices).
+# Pins the API key and encrypts OTA with the same key.
+# Without it the device ships keyless: Home Assistant provisions a key on adoption.
+api:
+  encryption:
+    key: ${ api_key if api_key is defined else "" }
+
+ota:
+  - id: !extend ota_esphome
+    encryption:

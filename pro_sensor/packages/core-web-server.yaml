@@ -1,0 +1,8 @@
+# Included only when both `web_username` and `web_password` are set.
+web_server:
+  port: 80
+  include_internal: false
+  auth:
+    type: digest
+    username: ${ web_username if web_username is defined else "" }
+    password: ${ web_password if web_password is defined else "" }

@@ -1,0 +1,24 @@
+# Lets the user choose which ceiling fan the IR blaster controls.
+# Only the chosen brand's controls appear in Home Assistant; changing it
+# restarts the device automatically to apply.
+select:
+  - platform: template
+    name: Fan remote
+    id: ir_fan_brand
+    icon: mdi:ceiling-fan
+    entity_category: config
+    optimistic: true
+    restore_value: true
+    options: ${ ["Not used"] + (["Atomberg"] if ir_atomberg_fan is defined and ir_atomberg_fan else []) }
+    initial_option: "Not used"
+    on_value:
+      - script.execute: restart_to_apply
+
+esphome:
+  on_boot:
+    - priority: 600
+      then:
+        - lambda: |-
+            const auto selected = id(ir_fan_brand).current_option();
+            ${ "id(ceiling_fan).set_internal(!(selected == \"Atomberg\"));" if ir_atomberg_fan is defined and ir_atomberg_fan else "" }
+            ${ "id(atomberg_fan_light_button).set_internal(!(selected == \"Atomberg\"));" if ir_atomberg_fan is defined and ir_atomberg_fan else "" }

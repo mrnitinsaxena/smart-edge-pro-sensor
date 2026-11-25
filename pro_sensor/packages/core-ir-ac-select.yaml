@@ -1,0 +1,27 @@
+# Lets the user choose which air conditioner the IR blaster controls.
+# Only the chosen brand's controls appear in Home Assistant; changing it
+# restarts the device automatically to apply.
+select:
+  - platform: template
+    name: AC remote
+    id: ir_ac_brand
+    icon: mdi:air-conditioner
+    entity_category: config
+    optimistic: true
+    restore_value: true
+    options: ${ ["Not used"] + (["Daikin"] if ir_daikin_ac is defined and ir_daikin_ac else []) + (["Panasonic"] if ir_panasonic_ac is defined and ir_panasonic_ac else []) }
+    initial_option: "Not used"
+    on_value:
+      - script.execute: restart_to_apply
+
+esphome:
+  on_boot:
+    - priority: 600
+      then:
+        - lambda: |-
+            const auto selected = id(ir_ac_brand).current_option();
+            ${ "id(daikin_ac).set_internal(!(selected == \"Daikin\"));" if ir_daikin_ac is defined and ir_daikin_ac else "" }
+            ${ "id(panasonic_ac).set_internal(!(selected == \"Panasonic\"));" if ir_panasonic_ac is defined and ir_panasonic_ac else "" }
+            ${ "id(panasonic_ac_fan_level).set_internal(!(selected == \"Panasonic\"));" if ir_panasonic_ac is defined and ir_panasonic_ac else "" }
+            ${ "id(panasonic_ac_swing_vertical).set_internal(!(selected == \"Panasonic\"));" if ir_panasonic_ac is defined and ir_panasonic_ac else "" }
+            ${ "id(panasonic_ac_swing_horizontal).set_internal(!(selected == \"Panasonic\"));" if ir_panasonic_ac is defined and ir_panasonic_ac else "" }

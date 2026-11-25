@@ -1,0 +1,171 @@
+# Default values; override per include with `vars:` if needed.
+defaults:
+  uart_id: "uart_bus_sen0395"
+  sen0395_id: "sen0395"
+  sen0395_prefix: "SEN0395 "
+
+uart:
+  - id: ${uart_id}
+    baud_rate:  115200
+    rx_pin: ${RADAR1_RX1_PIN}
+    tx_pin: ${RADAR1_TX1_PIN}
+
+dfrobot_sen0395:
+  - id: ${sen0395_id}
+    uart_id: ${uart_id}
+
+binary_sensor:
+  - platform: dfrobot_sen0395
+    dfrobot_sen0395_id: ${sen0395_id}
+    name: Presence
+    id: ${sen0395_id}_presence
+    device_class: occupancy
+    filters:
+      - delayed_on: 0s
+      - delayed_off: !lambda "return id(${sen0395_id}_presence_delay).state * 60000;"
+
+switch:
+  - platform: dfrobot_sen0395
+    dfrobot_sen0395_id: ${sen0395_id}
+    type: sensor_active
+    name: ${sen0395_prefix}Active
+    id: ${sen0395_id}_active
+    icon: mdi:chip
+
+  - platform: dfrobot_sen0395
+    dfrobot_sen0395_id: ${sen0395_id}
+    type: presence_via_uart
+    name: ${sen0395_prefix}Presence via UART
+    id: ${sen0395_id}_presence_via_uart
+    icon: mdi:motion-sensor
+  
+  - platform: dfrobot_sen0395
+    dfrobot_sen0395_id: ${sen0395_id}
+    type: start_after_boot
+    name: ${sen0395_prefix}Start on Boot
+    id: ${sen0395_id}_start_after_boot
+    icon: mdi:refresh-auto
+
+  - platform: dfrobot_sen0395
+    dfrobot_sen0395_id: ${sen0395_id}
+    type: turn_on_led
+    name: ${sen0395_prefix}LED ON
+    id: ${sen0395_id}_turn_on_led
+    icon: mdi:led-on
+
+button:
+  - platform: template  
+    id: ${sen0395_id}_settings  
+    name: ${sen0395_prefix}Save Settings
+    icon: mdi:content-save-cog-outline
+    entity_category: config
+    on_press:  
+      - dfrobot_sen0395.settings: 
+          id: ${sen0395_id}
+          detection_segments:  
+            - !lambda |-  
+                return 0;  
+            - !lambda |-  
+                return id(${sen0395_id}_distance).state;  
+          output_latency:  
+            delay_after_detect: !lambda |-    
+              return id(${sen0395_id}_on_latency).state;    
+            delay_after_disappear: !lambda |-    
+              return id(${sen0395_id}_off_latency).state;    
+          sensitivity: !lambda |-  
+            return id(${sen0395_id}_sensitivity).state; 
+
+  - platform: template
+    name: ${sen0395_prefix}Restart
+    id: ${sen0395_id}_restart
+    icon: mdi:restart
+    entity_category: config
+    on_press:
+      dfrobot_sen0395.reset: ${sen0395_id}
+
+  - platform: template
+    name: ${sen0395_prefix}Factory Reset
+    id: ${sen0395_id}_factory_reset
+    icon: mdi:restart
+    entity_category: config
+    on_press:
+      dfrobot_sen0395.settings:
+        id: ${sen0395_id}
+        factory_reset: true
+
+number:
+  - platform: template
+    name: ${sen0395_prefix}Sensitivity
+    icon: mdi:target-variant
+    id: ${sen0395_id}_sensitivity
+    entity_category: config
+    min_value: 0
+    max_value: 9
+    initial_value: 7
+    optimistic: true
+    step: 1
+    restore_value: true
+    mode: box
+    # set_action:
+    #   button.press: ${sen0395_id}_settings
+
+  - platform: template  
+    id: ${sen0395_id}_distance  
+    name: ${sen0395_prefix}Distance  
+    icon: mdi:arrow-left-right  
+    entity_category: config  
+    min_value: 0.0  
+    max_value: 8.0  
+    initial_value: 4.05  
+    optimistic: true  
+    step: 0.15  
+    restore_value: true  
+    unit_of_measurement: m
+    mode: box
+    # set_action:   
+    #   button.press: ${sen0395_id}_settings
+
+  - platform: template
+    id: ${sen0395_id}_off_latency
+    name: ${sen0395_prefix}Latency OFF
+    icon: mdi:clock-end
+    entity_category: config
+    min_value: 1.0
+    max_value: 30.0
+    initial_value: 10.0
+    optimistic: true
+    step: 1.0
+    restore_value: true
+    unit_of_measurement: seconds
+    mode: box
+    # set_action:   
+    #   button.press: ${sen0395_id}_settings
+
+  - platform: template
+    id: ${sen0395_id}_on_latency
+    name: ${sen0395_prefix}Latency ON
+    icon: mdi:clock-start
+    entity_category: config
+    min_value: 0.0
+    max_value: 1.0
+    initial_value: 0.0
+    optimistic: true
+    step: 0.25
+    restore_value: true
+    unit_of_measurement: seconds
+    mode: box
+    # set_action:   
+    #   button.press: ${sen0395_id}_settings
+
+  - platform: template
+    name: ${sen0395_prefix}Presence delay
+    id: ${sen0395_id}_presence_delay
+    min_value: 1
+    max_value: 60
+    initial_value: 2
+    optimistic: true
+    step: 1
+    restore_value: true
+    unit_of_measurement: min
+    icon: mdi:timer-edit-outline
+    entity_category: config

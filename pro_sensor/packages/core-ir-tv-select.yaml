@@ -1,0 +1,33 @@
+# Lets the user choose which TV the IR blaster controls.
+# Only the chosen brand's controls appear in Home Assistant; changing it
+# restarts the device automatically to apply.
+select:
+  - platform: template
+    name: TV remote
+    id: ir_tv_brand
+    icon: mdi:television
+    entity_category: config
+    optimistic: true
+    restore_value: true
+    options: ${ ["Not used"] + (["Samsung"] if ir_samsung_tv is defined and ir_samsung_tv else []) + (["Sony"] if ir_sony_tv is defined and ir_sony_tv else []) }
+    initial_option: "Not used"
+    on_value:
+      - script.execute: restart_to_apply
+
+esphome:
+  on_boot:
+    - priority: 600
+      then:
+        - lambda: |-
+            const auto selected = id(ir_tv_brand).current_option();
+            ${ "id(samsung_tv_power_on_button).set_internal(!(selected == \"Samsung\"));" if ir_samsung_tv is defined and ir_samsung_tv else "" }
+            ${ "id(samsung_tv_power_off_button).set_internal(!(selected == \"Samsung\"));" if ir_samsung_tv is defined and ir_samsung_tv else "" }
+            ${ "id(samsung_tv_toggle).set_internal(!(selected == \"Samsung\"));" if ir_samsung_tv is defined and ir_samsung_tv else "" }
+            ${ "id(samsung_tv_on).set_internal(!(selected == \"Samsung\"));" if ir_samsung_tv is defined and ir_samsung_tv else "" }
+            ${ "id(samsung_tv_off).set_internal(!(selected == \"Samsung\"));" if ir_samsung_tv is defined and ir_samsung_tv else "" }
+            ${ "id(sony_tv_power_toggle_button).set_internal(!(selected == \"Sony\"));" if ir_sony_tv is defined and ir_sony_tv else "" }
+            ${ "id(sony_tv_volume_up_button).set_internal(!(selected == \"Sony\"));" if ir_sony_tv is defined and ir_sony_tv else "" }
+            ${ "id(sony_tv_volume_down_button).set_internal(!(selected == \"Sony\"));" if ir_sony_tv is defined and ir_sony_tv else "" }
+            ${ "id(sony_tv_mute_button).set_internal(!(selected == \"Sony\"));" if ir_sony_tv is defined and ir_sony_tv else "" }
+            ${ "id(sony_tv_play_pause_button).set_internal(!(selected == \"Sony\"));" if ir_sony_tv is defined and ir_sony_tv else "" }
+            ${ "id(sony_tv_power_toggle).set_internal(!(selected == \"Sony\"));" if ir_sony_tv is defined and ir_sony_tv else "" }

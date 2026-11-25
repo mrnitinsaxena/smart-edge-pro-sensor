@@ -1,0 +1,142 @@
+# Default values; override per include with `vars:` if needed.
+defaults:
+  uart_id: "uart_bus_mr24hpc1"
+  mr24hpc1_id: "mr24hpc1"
+  mr24hpc1_prefix: "MR24HPC1 "
+
+uart:
+  - id: ${uart_id}
+    baud_rate:  115200
+    rx_pin: ${RADAR1_RX1_PIN}
+    tx_pin: ${RADAR1_TX1_PIN}
+    parity: none
+    stop_bits: 1
+
+seeed_mr24hpc1:
+  - id: ${mr24hpc1_id}
+    uart_id: ${uart_id}
+
+binary_sensor:
+  - platform: seeed_mr24hpc1
+    has_target:
+      name: Presence
+      id: ${mr24hpc1_id}_presence
+      device_class: occupancy
+
+  - platform: template
+    id: ${mr24hpc1_id}_motion
+    name: Motion
+    device_class: motion
+    lambda: !lambda 'return id(${mr24hpc1_id}_motion_status).state == "Active" ? true : false;'
+
+  # - platform: template
+  #   id: ${mr24hpc1_id}_presence
+  #   name: Presence
+  #   device_class: occupancy
+  #   lambda: !lambda 'return id(${mr24hpc1_id}_presence_info).state ? true : false;'
+
+
+switch:
+  - platform: seeed_mr24hpc1
+    underlying_open_function:
+      id: ${mr24hpc1_id}_underlying_open_function_info_output_switch
+      name: ${mr24hpc1_prefix}Underlying Open Function Info Output Switch
+
+sensor:
+  - platform: seeed_mr24hpc1
+    custom_presence_of_detection:
+      id: ${mr24hpc1_id}_static_switch
+      name: ${mr24hpc1_prefix}Static Distance
+    movement_signs:
+      id: ${mr24hpc1_id}_body_movement_parameter
+      name: ${mr24hpc1_prefix}Body Movement Parameter
+    custom_motion_distance:
+      id: ${mr24hpc1_id}_motion_distance
+      name: ${mr24hpc1_prefix}Motion Distance
+    custom_spatial_static_value:
+      id: ${mr24hpc1_id}_exitence_energy
+      name: ${mr24hpc1_prefix}Existence Energy
+    custom_spatial_motion_value:
+      id: ${mr24hpc1_id}_motion_energy
+      name: ${mr24hpc1_prefix}Motion Energy
+    custom_motion_speed:
+      id: ${mr24hpc1_id}_motion_speed
+      name: ${mr24hpc1_prefix}Motion Speed
+    custom_mode_num:
+      id: ${mr24hpc1_id}_current_custom_mode
+      name: ${mr24hpc1_prefix}Current Custom Mode
+
+text_sensor:
+  - platform: seeed_mr24hpc1
+    heart_beat:
+      id: ${mr24hpc1_id}_heartbeat
+      name: ${mr24hpc1_prefix}Heartbeat
+    product_model:
+      id: ${mr24hpc1_id}_product_model
+      name: ${mr24hpc1_prefix}Product Model
+    product_id:
+      id: ${mr24hpc1_id}_product_id
+      name: ${mr24hpc1_prefix}Product ID
+    hardware_model:
+      id: ${mr24hpc1_id}_hardware_model
+      name: ${mr24hpc1_prefix}Hardware Model
+    hardware_version:
+      id: ${mr24hpc1_id}_hardware_version
+      name: ${mr24hpc1_prefix}Hardware Version
+    keep_away:
+      id: ${mr24hpc1_id}_active_reporting_of_proximity
+      name: ${mr24hpc1_prefix}Active Reporting Of Proximity
+    motion_status:
+      id: ${mr24hpc1_id}_motion_status
+      name: ${mr24hpc1_prefix}Motion Information
+    custom_mode_end:
+      id: ${mr24hpc1_id}_custom_mode_status
+      name: ${mr24hpc1_prefix}Custom Mode Status
+
+select:
+  - platform: seeed_mr24hpc1
+    scene_mode:
+      id: ${mr24hpc1_id}_scene
+      name: ${mr24hpc1_prefix}Scene
+    unman_time:
+      id: ${mr24hpc1_id}_time_for_entering_no_person_state_standard
+      name: ${mr24hpc1_prefix}Time For Entering No Person State (Standard Function)
+    existence_boundary:
+      id: ${mr24hpc1_id}_exitence_boundary
+      name: ${mr24hpc1_prefix}Existence Boundary
+    motion_boundary:
+      id: ${mr24hpc1_id}_motion_boundary
+      name: ${mr24hpc1_prefix}Motion Boundary
+
+number:
+  - platform: seeed_mr24hpc1
+    sensitivity:
+      id: ${mr24hpc1_id}_sensitivity
+      name: ${mr24hpc1_prefix}Sensitivity
+    custom_mode:
+      id: ${mr24hpc1_id}_custom_mode
+      name: ${mr24hpc1_prefix}Custom Mode
+    existence_threshold:
+      id: ${mr24hpc1_id}_existence_energy_threshold
+      name: ${mr24hpc1_prefix}Existence Energy Threshold
+    motion_threshold:
+      id: ${mr24hpc1_id}_motion_energy_threshold
+      name: ${mr24hpc1_prefix}Motion Energy Threshold
+    motion_trigger:
+      id: ${mr24hpc1_id}_motion_trigger_time
+      name: ${mr24hpc1_prefix}Motion Trigger Time
+    motion_to_rest:
+      id: ${mr24hpc1_id}_motion_to_reset_time
+      name: ${mr24hpc1_prefix}Motion To Reset Time
+    custom_unman_time:
+      id: ${mr24hpc1_id}_time_for_entering_no_person_state_underlying
+      name: ${mr24hpc1_prefix}Time For Entering No Person State (Underlying Open Function)
+
+button:
+  - platform: seeed_mr24hpc1
+    restart:
+      id: ${mr24hpc1_id}_module_restart
+      name: ${mr24hpc1_prefix}Module Restart
+    custom_set_end:
+      id: ${mr24hpc1_id}_end_of_custom_mode_settings
+      name: ${mr24hpc1_prefix}End Of Custom Mode Settings

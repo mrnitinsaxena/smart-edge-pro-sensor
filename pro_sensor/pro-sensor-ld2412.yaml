@@ -1,0 +1,8 @@
+# Smart Edge Pro Sensor - model: pro-sensor-ld2412
+# Built and published by the GitHub release workflow.
+substitutions:
+  model_id: "pro-sensor-ld2412"
+  radar1_ld2412: true
+
+packages:
+  hardware: !include hardware/hw-2025.08.19.yaml   # board revision (pins) - it loads the shared firmware

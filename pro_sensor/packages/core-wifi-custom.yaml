@@ -1,0 +1,4 @@
+wifi:
+  ssid: ${ wifi_ssid if wifi_ssid is defined and wifi_ssid != "" else ""}
+  password: ${ wifi_password if wifi_password is defined and wifi_password != "" else "" }
+  fast_connect: true

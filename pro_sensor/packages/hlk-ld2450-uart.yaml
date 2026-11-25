@@ -1,0 +1,258 @@
+# Default values; override per include with `vars:` if needed.
+defaults:
+  uart_id: "uart_bus_hlk_ld2450"
+  ld2450_id: "hlk_ld2450"
+  ld2450_prefix: "HLK-LD2450 "
+  name_suffix: ""               # "" for radar 1, " 2" for radar 2
+  rx_pin: ${RADAR1_RX1_PIN}
+  tx_pin: ${RADAR1_TX1_PIN}
+
+uart:
+  - id: ${uart_id}
+    rx_pin: ${rx_pin}
+    tx_pin: ${tx_pin}
+    baud_rate: 256000
+    parity: NONE
+    stop_bits: 1
+
+ld2450:
+  - id: ${ld2450_id}
+    uart_id: ${uart_id}
+
+binary_sensor:
+  - platform: ld2450
+    ld2450_id: ${ld2450_id}
+    has_target:
+      name: Presence${name_suffix}
+      device_class: occupancy
+    has_moving_target:
+      name: Motion${name_suffix}
+      device_class: motion
+    has_still_target:
+      name: ${ld2450_prefix}Still Target
+
+number:
+  - platform: ld2450
+    ld2450_id: ${ld2450_id}
+    presence_timeout:
+      id: ${ld2450_id}_timeout
+      name: "${ld2450_prefix}Timeout"
+    zone_1:
+      x1:
+        name: ${ld2450_prefix}Zone-1 X1
+      y1:
+        name: ${ld2450_prefix}Zone-1 Y1
+      x2:
+        name: ${ld2450_prefix}Zone-1 X2
+      y2:
+        name: ${ld2450_prefix}Zone-1 Y2
+    zone_2:
+      x1:
+        name: ${ld2450_prefix}Zone-2 X1
+      y1:
+        name: ${ld2450_prefix}Zone-2 Y1
+      x2:
+        name: ${ld2450_prefix}Zone-2 X2
+      y2:
+        name: ${ld2450_prefix}Zone-2 Y2
+    zone_3:
+      x1:
+        name: ${ld2450_prefix}Zone-3 X1
+      y1:
+        name: ${ld2450_prefix}Zone-3 Y1
+      x2:
+        name: ${ld2450_prefix}Zone-3 X2
+      y2:
+        name: ${ld2450_prefix}Zone-3 Y2
+
+switch:
+  - platform: ld2450
+    ld2450_id: ${ld2450_id}
+    bluetooth:
+      id: ${ld2450_id}_bluetooth
+      name: ${ld2450_prefix}Bluetooth
+    multi_target:
+      name: ${ld2450_prefix}Multi Target Tracking
+
+select:
+  - platform: ld2450
+    ld2450_id: ${ld2450_id}
+    baud_rate:
+      name: ${ld2450_prefix}Baud rate
+    zone_type:
+      name: ${ld2450_prefix}Zone Type
+
+button:
+  - platform: ld2450
+    ld2450_id: ${ld2450_id}
+    factory_reset:
+      name: ${ld2450_prefix}LD2450 Factory Reset
+      entity_category: config
+    restart:
+      name: ${ld2450_prefix}LD2450 Restart
+      entity_category: config
+
+text_sensor:
+  - platform: ld2450
+    ld2450_id: ${ld2450_id}
+    version:
+      name: ${ld2450_prefix}LD2450 Firmware
+    mac_address:
+      name: ${ld2450_prefix}LD2450 BT MAC
+    target_1:
+      direction:
+        name: ${ld2450_prefix}Target-1 Direction
+        entity_category: diagnostic
+        disabled_by_default: true
+    target_2:
+      direction:
+        name: ${ld2450_prefix}Target-2 Direction
+        entity_category: diagnostic
+        disabled_by_default: true
+    target_3:
+      direction:
+        name: ${ld2450_prefix}Target-3 Direction
+        entity_category: diagnostic
+        disabled_by_default: true
+
+sensor:
+  - platform: ld2450
+    ld2450_id: ${ld2450_id}
+    target_count:
+      name: ${ld2450_prefix}Presence Target Count
+  - platform: ld2450
+    ld2450_id: ${ld2450_id}
+    still_target_count:
+      name: ${ld2450_prefix}Still Target Count
+  - platform: ld2450
+    ld2450_id: ${ld2450_id}
+    moving_target_count:
+      name: ${ld2450_prefix}Moving Target Count
+  - platform: ld2450
+    ld2450_id: ${ld2450_id}
+    target_1:
+      x:
+        name: ${ld2450_prefix}Target-1 X
+        entity_category: diagnostic
+        disabled_by_default: true
+      y:
+        name: ${ld2450_prefix}Target-1 Y
+        entity_category: diagnostic
+        disabled_by_default: true
+      speed:
+        name: ${ld2450_prefix}Target-1 Speed
+        entity_category: diagnostic
+        disabled_by_default: true
+      angle:
+        name: ${ld2450_prefix}Target-1 Angle
+        entity_category: diagnostic
+        disabled_by_default: true
+      distance:
+        name: ${ld2450_prefix}Target-1 Distance
+        entity_category: diagnostic
+        disabled_by_default: true
+      resolution:
+        name: ${ld2450_prefix}Target-1 Resolution
+        entity_category: diagnostic
+        disabled_by_default: true
+    target_2:
+      x:
+        name: ${ld2450_prefix}Target-2 X
+        entity_category: diagnostic
+        disabled_by_default: true
+      y:
+        name: ${ld2450_prefix}Target-2 Y
+        entity_category: diagnostic
+        disabled_by_default: true
+      speed:
+        name: ${ld2450_prefix}Target-2 Speed
+        entity_category: diagnostic
+        disabled_by_default: true
+      angle:
+        name: ${ld2450_prefix}Target-2 Angle
+        entity_category: diagnostic
+        disabled_by_default: true
+      distance:
+        name: ${ld2450_prefix}Target-2 Distance
+        entity_category: diagnostic
+        disabled_by_default: true
+      resolution:
+        name: ${ld2450_prefix}Target-2 Resolution
+        entity_category: diagnostic
+        disabled_by_default: true
+    target_3:
+      x:
+        name: ${ld2450_prefix}Target-3 X
+        entity_category: diagnostic
+        disabled_by_default: true
+      y:
+        name: ${ld2450_prefix}Target-3 Y
+        entity_category: diagnostic
+        disabled_by_default: true
+      speed:
+        name: ${ld2450_prefix}Target-3 Speed
+        entity_category: diagnostic
+        disabled_by_default: true
+      angle:
+        name: ${ld2450_prefix}Target-3 Angle
+        entity_category: diagnostic
+        disabled_by_default: true
+      distance:
+        name: ${ld2450_prefix}Target-3 Distance
+        entity_category: diagnostic
+        disabled_by_default: true
+      resolution:
+        name: ${ld2450_prefix}Target-3 Resolution
+        entity_category: diagnostic
+        disabled_by_default: true
+    zone_1:
+      target_count:
+        name: ${ld2450_prefix}Zone-1 All Target Count
+      still_target_count:
+        name: ${ld2450_prefix}Zone-1 Still Target Count
+      moving_target_count:
+        name: ${ld2450_prefix}Zone-1 Moving Target Count
+    zone_2:
+      target_count:
+        name: ${ld2450_prefix}Zone-2 All Target Count
+      still_target_count:
+        name: ${ld2450_prefix}Zone-2 Still Target Count
+      moving_target_count:
+        name: ${ld2450_prefix}Zone-2 Moving Target Count
+    zone_3:
+      target_count:
+        name: ${ld2450_prefix}Zone-3 All Target Count
+      still_target_count:
+        name: ${ld2450_prefix}Zone-3 Still Target Count
+      moving_target_count:
+        name: ${ld2450_prefix}Zone-3 Moving Target Count
+
+# First start with this radar: switch off its Bluetooth (anyone nearby could change
+# settings with the HLKRadarTool app) and replace a presence delay of 0 with 30 s.
+# Runs once; anything you change afterwards is never touched again.
+globals:
+  - id: ${ld2450_id}_setup_done
+    type: bool
+    restore_value: true
+    initial_value: "false"
+
+esphome:
+  on_boot:
+    - priority: -200
+      then:
+        - delay: 20s
+        - if:
+            condition:
+              lambda: 'return !id(${ld2450_id}_setup_done) && id(${ld2450_id}_timeout).has_state();'
+            then:
+              - lambda: |-
+                  if (id(${ld2450_id}_timeout).state < 1) {
+                    ESP_LOGW("radar", "Presence delay was 0 - setting 30 s");
+                    id(${ld2450_id}_timeout).make_call().set_value(30).perform();
+                  }
+              - delay: 2s
+              - lambda: |-
+                  // Switch off even if the radar has not reported its Bluetooth state yet (runs once)
+                  ESP_LOGW("radar", "Switching off radar Bluetooth");
+                  id(${ld2450_id}_bluetooth).turn_off();
+                  id(${ld2450_id}_setup_done) = true;

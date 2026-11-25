@@ -1,0 +1,7 @@
+# Smart Edge Pro Sensor - model: pro-sensor
+# Built and published by the GitHub release workflow.
+substitutions:
+  model_id: "pro-sensor"
+
+packages:
+  hardware: !include hardware/hw-2025.08.19.yaml   # board revision (pins) - it loads the shared firmware

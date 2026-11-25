@@ -1,0 +1,277 @@
+# Default values; override per include with `vars:` if needed.
+defaults:
+  uart_id: "uart_bus_hlk_ld2412"
+  ld2412_id: "hlk_ld2412"
+  ld2412_prefix: "HLK-LD2412 "
+
+uart:
+  - id: ${uart_id}
+    rx_pin: ${RADAR1_RX1_PIN}
+    tx_pin: ${RADAR1_TX1_PIN}
+    baud_rate: 115200
+    parity: NONE
+    stop_bits: 1
+
+ld2412:
+  - id: ${ld2412_id}
+    uart_id: ${uart_id}
+
+binary_sensor:
+  - platform: ld2412
+    ld2412_id: ${ld2412_id}
+    has_target:
+      name: Presence
+      device_class: occupancy
+    has_moving_target:
+      name: Motion
+      device_class: motion
+    has_still_target:
+      name: ${ld2412_prefix}Still Target
+      device_class: motion
+    dynamic_background_correction_status:
+      name: ${ld2412_prefix}Dynamic Background Correction Status
+
+number:
+  - platform: ld2412
+    ld2412_id: ${ld2412_id}
+    timeout:
+      id: ${ld2412_id}_timeout
+      name: ${ld2412_prefix}Presence Timeout
+    light_threshold:
+      name: ${ld2412_prefix}Light threshold
+    min_distance_gate:
+      name: ${ld2412_prefix}Minimum Distance Gate
+    max_distance_gate:
+      name: ${ld2412_prefix}Maximum Distance Gate
+    # gate_0:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 0 move threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 0 still threshold
+    # gate_1:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 1 move threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 1 still threshold
+    # gate_2:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 2 move threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 2 still threshold
+    # gate_3:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 3 move threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 3 still threshold
+    # gate_4:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 4 move threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 4 still threshold
+    # gate_5:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 5 move threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 5 still threshold
+    # gate_6:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 6 move threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 6 still threshold
+    # gate_7:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 7 move threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 7 still threshold
+    # gate_8:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 8 move threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 8 still threshold
+    # gate_9:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 9 Move Threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 9 Still Threshold
+    # gate_10:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 10 Move Threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 10 Still Threshold
+    # gate_11:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 11 Move Threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 11 Still Threshold
+    # gate_12:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 12 Move Threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 12 Still Threshold
+    # gate_13:
+    #   move_threshold:
+    #     name: ${ld2412_prefix}Gate 13 Move Threshold
+    #   still_threshold:
+    #     name: ${ld2412_prefix}Gate 13 Still Threshold
+
+switch:
+  - platform: ld2412
+    ld2412_id: ${ld2412_id}
+    engineering_mode:
+      name: ${ld2412_prefix}Engineering Mode
+    bluetooth:
+      id: ${ld2412_id}_bluetooth
+      name: ${ld2412_prefix}Bluetooth
+
+select:
+  - platform: ld2412
+    ld2412_id: ${ld2412_id}
+    distance_resolution:
+      name: ${ld2412_prefix}Distance resolution
+    baud_rate:
+      name: ${ld2412_prefix}Baud rate
+    light_function:
+      name: ${ld2412_prefix}Light function
+    # out_pin_level:
+    #   name: ${ld2412_prefix}Hardware Output Pin Level
+
+button:
+  - platform: ld2412
+    ld2412_id: ${ld2412_id}
+    factory_reset:
+      name: ${ld2412_prefix}Factory reset
+    restart:
+      name: ${ld2412_prefix}Restart
+    query_params:
+      name: ${ld2412_prefix}Query params
+    start_dynamic_background_correction:
+      name: ${ld2412_prefix}Start Dynamic Background Correction
+
+text_sensor:
+  - platform: ld2412
+    ld2412_id: ${ld2412_id}
+    version:
+      name: ${ld2412_prefix}Firmware version
+    mac_address:
+      name: ${ld2412_prefix}MAC address
+
+sensor:
+  - platform: ld2412
+    ld2412_id: ${ld2412_id}
+    light:
+      name: ${ld2412_prefix}Light
+    moving_distance:
+      name: ${ld2412_prefix}Moving Distance
+      entity_category: diagnostic
+    still_distance:
+      name: ${ld2412_prefix}Still Distance
+      entity_category: diagnostic
+    moving_energy:
+      name: ${ld2412_prefix}Move Energy
+      entity_category: diagnostic
+    still_energy:
+      name: ${ld2412_prefix}Still Energy
+      entity_category: diagnostic
+    detection_distance:
+      name: ${ld2412_prefix}Detection Distance
+      entity_category: diagnostic
+    # gate_0:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 0 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 0 still energy
+    # gate_1:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 1 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 1 still energy
+    # gate_2:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 2 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 2 still energy
+    # gate_3:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 3 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 3 still energy
+    # gate_4:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 4 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 4 still energy
+    # gate_5:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 5 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 5 still energy
+    # gate_6:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 6 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 6 still energy
+    # gate_7:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 7 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 7 still energy
+    # gate_8:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 8 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 8 still energy
+    # gate_9:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 9 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 9 still energy
+    # gate_10:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 10 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 10 still energy
+    # gate_11:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 11 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 11 still energy
+    # gate_12:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 12 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 12 still energy
+    # gate_13:
+    #   move_energy:
+    #     name: ${ld2412_prefix}Gate 13 move energy
+    #   still_energy:
+    #     name: ${ld2412_prefix}Gate 13 still energy
+
+# First start with this radar: switch off its Bluetooth (anyone nearby could change
+# settings with the HLKRadarTool app) and replace a presence delay of 0 with 30 s.
+# Runs once; anything you change afterwards is never touched again.
+globals:
+  - id: radar_first_setup_done
+    type: bool
+    restore_value: true
+    initial_value: "false"
+
+esphome:
+  on_boot:
+    - priority: -200
+      then:
+        - delay: 20s
+        - if:
+            condition:
+              lambda: 'return !id(radar_first_setup_done) && id(${ld2412_id}_timeout).has_state();'
+            then:
+              - lambda: |-
+                  if (id(${ld2412_id}_timeout).state < 1) {
+                    ESP_LOGW("radar", "Presence delay was 0 - setting 30 s");
+                    id(${ld2412_id}_timeout).make_call().set_value(30).perform();
+                  }
+              - delay: 2s
+              - lambda: |-
+                  // Switch off even if the radar has not reported its Bluetooth state yet (runs once)
+                  ESP_LOGW("radar", "Switching off radar Bluetooth");
+                  id(${ld2412_id}_bluetooth).turn_off();
+                  id(radar_first_setup_done) = true;

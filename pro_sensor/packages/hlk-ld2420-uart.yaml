@@ -1,0 +1,82 @@
+# Default values; override per include with `vars:` if needed.
+defaults:
+  uart_id: "uart_bus_hlk_ld2420"
+  ld2420_id: "hlk_ld2420"
+  ld2420_prefix: "HLK-LD2420 "
+
+uart:
+  - id: ${uart_id}
+    rx_pin: ${RADAR1_RX1_PIN}
+    tx_pin: ${RADAR1_TX1_PIN}
+    baud_rate: 115200
+
+ld2420:
+  - id: ${ld2420_id}
+    uart_id: ${uart_id}
+
+binary_sensor:
+  - platform: ld2420
+    ld2420_id: ${ld2420_id}
+    has_target:
+      name: Presence
+      device_class: occupancy
+
+number:
+  - platform: ld2420
+    ld2420_id: ${ld2420_id}
+    presence_timeout:
+      name: ${ld2420_prefix}Detection Presence Timeout
+    min_gate_distance:
+      name: ${ld2420_prefix}Detection Gate Minimum
+    max_gate_distance:
+      name: ${ld2420_prefix}Detection Gate Maximum
+    gate_select:
+      name: ${ld2420_prefix}Select Gate to Set
+    still_threshold:
+      name: ${ld2420_prefix}Set Still Threshold Value
+    move_threshold:
+      name: ${ld2420_prefix}Set Move Threshold Value
+    gate_move_sensitivity:
+      name: ${ld2420_prefix}Move Calibration Sensitivity Factor
+    gate_still_sensitivity:
+      name: ${ld2420_prefix}Still Calibration Sensitivity Factor
+    gate_0:
+      move_threshold:
+        name: ${ld2420_prefix}Gate 0 Move Threshold
+      still_threshold:
+        name: ${ld2420_prefix}Gate 0 Still Threshold
+    gate_1:
+      move_threshold:
+        name: ${ld2420_prefix}Gate 1 Move Threshold
+      still_threshold:
+        name: ${ld2420_prefix}Gate 1 Still Threshold
+
+select:
+  - platform: ld2420
+    ld2420_id: ${ld2420_id}
+    operating_mode:
+      name: ${ld2420_prefix}Operating Mode
+
+button:
+  - platform: ld2420
+    ld2420_id: ${ld2420_id}
+    apply_config:
+      name: ${ld2420_prefix}Apply Config
+    factory_reset:
+      name: ${ld2420_prefix}Factory Reset
+    restart_module:
+      name: ${ld2420_prefix}Restart Module
+    revert_config:
+      name: ${ld2420_prefix}Undo Edits
+
+text_sensor:
+  - platform: ld2420
+    ld2420_id: ${ld2420_id}
+    fw_version:
+      name: ${ld2420_prefix}Firmware version
+
+sensor:
+  - platform: ld2420
+    ld2420_id: ${ld2420_id}
+    moving_distance:
+      name: ${ld2420_prefix}Moving Distance
