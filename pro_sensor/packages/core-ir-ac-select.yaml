@@ -65,23 +65,11 @@ select:
     on_value:
       - script.execute: restart_to_apply
 
-globals:
-  - id: ir_ac_list_version      # 0 = list from before v2026.11.26 (Not used / Daikin / Panasonic)
-    type: uint8_t
-    restore_value: true
-    initial_value: "0"
-
 esphome:
   on_boot:
     - priority: 600
       then:
         - lambda: |-
-            // Devices updated from the old 3-entry list start again at "Not used",
-            // so a saved Daikin/Panasonic choice doesn't land on another brand.
-            if (id(ir_ac_list_version) < 1) {
-              id(ir_ac_brand).make_call().set_option("Not used").perform();
-              id(ir_ac_list_version) = 1;
-            }
             const auto selected = id(ir_ac_brand).current_option();
             struct AcEntity { const char *option; EntityBase *entity; };
             const AcEntity entities[] = {
