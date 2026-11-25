@@ -6,6 +6,9 @@
 
 <h1 align="center">Pro Sensor</h1>
 
+> [!IMPORTANT]
+> **This repository has moved to [github.com/mrnitinsaxena/smart-edge-pro-sensor](https://github.com/mrnitinsaxena/smart-edge-pro-sensor).** Sensors update to the new location automatically with v2026.11.25. New releases are published only there.
+
 <p align="center">
   <a href="https://mrnitinsaxena.github.io/smart-edge-pro-sensor/"><b>Install firmware</b></a> ·
   <a href="https://github.com/mrnitinsaxena/smart-edge-pro-sensor/releases">Releases</a>
