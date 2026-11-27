@@ -47,7 +47,7 @@ substitutions:
   ir_sony_tv: true
   ir_ac: true                   # air conditioners (pick the model in Home Assistant)
   ir_atomberg_fan: true
-  ir_proxy: false               # IR transmitter / IR receiver for Home Assistant's Infrared integrations
+  ir_proxy: true                # IR transmitter / IR receiver for Home Assistant's Infrared integrations
 
   # ── Alerts & alarm ──
   alarm_panel: true             # follow a Home Assistant alarm panel
