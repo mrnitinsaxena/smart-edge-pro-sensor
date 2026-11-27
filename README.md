@@ -17,7 +17,7 @@ ESPHome firmware for the **Smart Edge Pro Sensor** by [Resonate to Innovate](htt
 
 - **Environment:** temperature and humidity (AHT20) and illuminance (BH1750), each with an adjustable calibration offset
 - **Presence (optional):** works with the HLK-LD2410, LD2412, LD2420 and LD2450, DFRobot SEN0395 and SEN0609, and Seeed MR24HPC1 mmWave radars; dual-radar models add an HLK-LD2450 as a second radar
-- **IR control (optional):** Samsung and Sony TVs, air conditioners (every IR remote model built into ESPHome: Daikin, Panasonic, LG, Samsung, Hitachi, Mitsubishi, Toshiba, Fujitsu General / O General, Gree, Whirlpool, Midea and more), Atomberg fans
+- **IR control (optional):** Samsung and Sony TVs, air conditioners (every IR remote model built into ESPHome: Daikin, Panasonic, LG, Samsung, Hitachi, Mitsubishi, Toshiba, Fujitsu General / O General, Gree, Whirlpool, Midea and more), Atomberg fans; also works as a Home Assistant infrared remote adapter for any other remote
 - **Alerts:** a high-temperature alert with an adjustable threshold, a siren and an emergency LED pattern; follows Alarmo automatically, and an **External alarm** switch lets any Home Assistant automation sound the siren
 - **Status feedback:** RGB LED and buzzer for boot, Wi-Fi and Home Assistant connection, with a Do Not Disturb switch
 - **Easy setup:** Wi-Fi through the sensor's own hotspot (works on any phone); adopt in Home Assistant and the ESPHome dashboard
@@ -82,7 +82,7 @@ You can also start from scratch:
 
 ```yaml
 packages:
-  smart_edge: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/pro-sensor-sen0395.yaml@v2026.11.25.4
+  smart_edge: github://mrnitinsaxena/smart-edge-pro-sensor/pro_sensor/pro-sensor-sen0395.yaml@v2026.11.27
 
 wifi:
   ssid: !secret wifi_ssid
@@ -114,6 +114,7 @@ Set any of these under `substitutions:` in your device config.
 | `ir_sony_tv: true` | Sony TV |
 | `ir_ac: true` | Air conditioners (all supported models; pick yours in Home Assistant) |
 | `ir_atomberg_fan: true` | Atomberg fan |
+| `ir_proxy: true` | IR transmitter and IR receiver for Home Assistant's Infrared integrations |
 
 ### Device and network
 
@@ -181,6 +182,15 @@ The **AC remote** list has one entry per remote model that ESPHome supports. Som
 Most models also follow the original remote: if someone uses it, Home Assistant shows the new setting. Remko and Yashima can only send.
 
 Brands without built-in ESPHome support (for example Voltas, Blue Star, Lloyd and Godrej) aren't in the list yet.
+
+## Other remotes (Home Assistant Infrared)
+
+The sensor also appears in Home Assistant as an infrared remote adapter, with two entities under **Diagnostic**: **IR transmitter** and **IR receiver**. Needs Home Assistant 2026.4 or newer (2026.6 or newer for the receiver).
+
+- **Devices with a Home Assistant integration** (for example LG Infrared or Samsung Infrared): go to **Settings → Devices & services → Add integration**, pick the integration and choose this sensor's **IR transmitter**.
+- **Any other remote:** use a tool such as [HAIR](https://github.com/DAB-LABS/HAIR) to capture buttons through the **IR receiver** and send them through the **IR transmitter**.
+
+This runs alongside the built-in AC, TV and fan remotes. ESPHome marks this feature as experimental, so it may change in future updates.
 
 ## Factory reset
 
