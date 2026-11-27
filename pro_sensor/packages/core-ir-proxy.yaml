@@ -1,0 +1,18 @@
+# Home Assistant infrared remote adapter (ESPHome IR/RF proxy, experimental).
+# Lets Home Assistant send any IR code through the IR LED and receive codes
+# from any remote, for integrations such as LG Infrared, Samsung Infrared or HAIR.
+# Works alongside the built-in AC, TV and fan remotes.
+infrared:
+  - platform: ir_rf_proxy
+    name: IR transmitter
+    id: ir_proxy_tx
+    icon: mdi:remote
+    entity_category: diagnostic
+    remote_transmitter_id: ir_transmitter
+  - platform: ir_rf_proxy
+    name: IR receiver
+    id: ir_proxy_rx
+    icon: mdi:remote
+    entity_category: diagnostic
+    receiver_frequency: 38kHz
+    remote_receiver_id: ir_receiver

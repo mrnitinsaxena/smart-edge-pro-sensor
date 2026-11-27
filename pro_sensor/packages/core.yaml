@@ -32,6 +32,7 @@ substitutions:
   ir_sony_tv: true
   ir_ac: true                   # air conditioners: every remote model built into ESPHome
   ir_atomberg_fan: true
+  ir_proxy: true                # IR transmitter / IR receiver for Home Assistant's Infrared integrations
 
   # ── Alerts & alarm ──
   alarm_panel: true             # follow a Home Assistant alarm panel
@@ -50,7 +51,7 @@ substitutions:
   device_name: "pro-sensor"
   model: "Smart Edge Pro Sensor"
   hardware_version: "2025.08.19"
-  firmware_version: "2026.11.25.4"
+  firmware_version: "2026.11.27"
   project_id: "Resonate to Innovate.Smart Edge Pro Sensor"
   # Model - set by each model file in pro_sensor/; must match the radar (decides which update file the device follows):
   #   pro-sensor           no radar
@@ -97,6 +98,8 @@ substitutions:
     file: core-ir-ac-select.yaml
   ir_fan_select_capabilities: !include
     file: core-ir-fan-select.yaml
+  ir_proxy_capabilities: !include
+    file: core-ir-proxy.yaml
   wifi_custom_capabilities: !include
     file: core-wifi-custom.yaml
   area_capabilities: !include
@@ -148,7 +151,7 @@ substitutions:
 
 
 packages:
-  core_ir: ${ ir_capabilities if (ir_atomberg_fan is defined and ir_atomberg_fan) or (ir_ac is defined and ir_ac) or (ir_samsung_tv is defined and ir_samsung_tv) or (ir_sony_tv is defined and ir_sony_tv) else {} }
+  core_ir: ${ ir_capabilities if (ir_atomberg_fan is defined and ir_atomberg_fan) or (ir_ac is defined and ir_ac) or (ir_samsung_tv is defined and ir_samsung_tv) or (ir_sony_tv is defined and ir_sony_tv) or (ir_proxy is defined and ir_proxy) else {} }
   wifi_custom_capabilities: ${ wifi_custom_capabilities if wifi_ssid is defined and wifi_password is defined and wifi_ssid != "" and wifi_password != "" else {} }
   api_key_capabilities: ${ api_key_capabilities if api_key is defined and api_key != "" else {} }
   area_capabilities: ${ area_capabilities if custom_area is defined and custom_area != "" else {} }
@@ -163,6 +166,7 @@ packages:
   ir_tv_select_capabilities: ${ ir_tv_select_capabilities if (ir_samsung_tv is defined and ir_samsung_tv) or (ir_sony_tv is defined and ir_sony_tv) else {} }
   ir_ac_select_capabilities: ${ ir_ac_select_capabilities if (ir_ac is defined and ir_ac) else {} }
   ir_fan_select_capabilities: ${ ir_fan_select_capabilities if ir_atomberg_fan is defined and ir_atomberg_fan else {} }
+  ir_proxy_capabilities: ${ ir_proxy_capabilities if ir_proxy is defined and ir_proxy else {} }
   ld2412_capabilities: ${ ld2412_capabilities if radar1_ld2412 is defined and radar1_ld2412 else {} }
   ld2450_capabilities: ${ ld2450_capabilities if radar1_ld2450 is defined and radar1_ld2450 else {} }
   ld2410_capabilities: ${ ld2410_uart_capabilities if radar1_ld2410 is defined and radar1_ld2410 else {} }
